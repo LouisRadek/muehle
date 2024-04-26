@@ -1,5 +1,4 @@
 use core::{panic};
-use std::fmt::Debug;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Token {
@@ -64,9 +63,9 @@ impl GameState {
     /**
      * Makes a move if it is valid and returns if a new mill emerged
      */
-    fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> bool {
+    fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> Result<bool, &str> {
         if !self.is_move_valid(start_position, end_position) {
-            panic!("not a valid move")
+            return Err("Move is not valid!");
         }
 
         let token = if self.player_turn == 1 {
@@ -79,7 +78,7 @@ impl GameState {
             self.token_set_at_beginning -= 1;
             self.set_token_at_position(end_position, token);
             
-            return self.search_for_mill(end_position, token)
+            return Ok(self.search_for_mill(end_position, token))
         }
 
         self.set_token_at_position(start_position.unwrap(), Token::None);
@@ -89,10 +88,10 @@ impl GameState {
         let is_token_in_mill_after = self.search_for_mill(end_position, token);
 
         if !is_token_in_mill_before && is_token_in_mill_after {
-            return true
+            return Ok(true)
         }
 
-        return false
+        return Ok(false)
     }
     
     fn is_move_valid(&self, start_position: Option<usize>, end_position: usize) -> bool {
@@ -303,7 +302,7 @@ mod tests {
 
         // mill at set phase
         game.move_to(None, 23);
-        assert!(game.move_to(None, 22));
+        assert!(game.move_to(None,22).unwrap());
 
         // move phase
         let mut game2 = generate_example_positions();
@@ -333,7 +332,7 @@ mod tests {
         game2.player_turn = 2;
         assert_eq!(game2.get_token_at_position(15), Token::Black);
         assert_eq!(game2.get_token_at_position(23), Token::None);
-        assert!(game2.move_to(Some(15), 23));
+        assert!(game2.move_to(Some(15), 23).unwrap());
         assert_eq!(game2.get_token_at_position(23), Token::Black);
 
         // endphase
@@ -352,63 +351,26 @@ mod tests {
         // mill endphase
         assert_eq!(game3.get_token_at_position(12), Token::White);
         assert_eq!(game3.get_token_at_position(2), Token::None);
-        assert!(game3.move_to(Some(12), 2));
+        assert!(game3.move_to(Some(12), 2).unwrap());
         assert_eq!(game3.get_token_at_position(2), Token::White);
 
         assert_eq!(game3.get_token_at_position(2), Token::White);
         assert_eq!(game3.get_token_at_position(5), Token::None);
-        assert!(!game3.move_to(Some(2), 5));
+        assert!(!game3.move_to(Some(2), 5).unwrap());
         assert_eq!(game3.get_token_at_position(5), Token::White);
     }
 
     #[test]
-    #[should_panic]
     fn test_move_to_panic() {
         let mut game = generate_example_positions();
         game.token_set_at_beginning = 0;
 
         // without start_position not in the set phase
-        game.move_to(None, 0);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_move_to_panic2() {
-        let mut game = generate_example_positions();
-        game.token_set_at_beginning = 0;
-
-        // try to move black token as player 1
-        game.move_to(Some(16), 17);
-    }
-    
-    #[test]
-    #[should_panic]
-    fn test_move_to_panic3() {
-        let mut game = generate_example_positions();
-        game.token_set_at_beginning = 0;
-
-        // try to move a token on a not empty field
-        game.move_to(Some(18), 19);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_move_to_panic4() {
-        let mut game = generate_example_positions();
-        game.token_set_at_beginning = 0;
-
-        // try to move to a not neighbor field
-        game.move_to(Some(6), 14);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_move_to_panic5() {
-        let mut game = generate_example_positions();
-        game.token_set_at_beginning = 0;
-
-        // try to move from an empty field
-        game.move_to(Some(5), 4);
+        assert_eq!(game.move_to(None, 0).unwrap_err(), "Move is not valid!");
+        assert_eq!(game.move_to(Some(16), 17).unwrap_err(), "Move is not valid!");
+        assert_eq!(game.move_to(Some(18), 19).unwrap_err(), "Move is not valid!");
+        assert_eq!(game.move_to(Some(6), 14).unwrap_err(), "Move is not valid!");
+        assert_eq!(game.move_to(Some(5), 4).unwrap_err(), "Move is not valid!");
     }
 
     #[test]
