@@ -1,4 +1,5 @@
-use core::panic;
+use core::{panic};
+use std::fmt::Debug;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Token {
@@ -60,7 +61,10 @@ impl GameState {
         return number_of_token_type
     }
 
-    fn move_to(&mut self, start_position: Option<usize>, end_position: usize) {
+    /**
+     * Makes a move if it is valid and returns if a new mill emerged
+     */
+    fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> bool {
         if !self.is_move_valid(start_position, end_position) {
             panic!("not a valid move")
         }
@@ -71,10 +75,24 @@ impl GameState {
             Token::Black
         };
 
-        if !start_position.is_none() {
-            self.set_token_at_position(start_position.unwrap(), Token::None);
+        if start_position.is_none() {
+            self.token_set_at_beginning -= 1;
+            self.set_token_at_position(end_position, token);
+            
+            return self.search_for_mill(end_position, token)
         }
-        self.set_token_at_position(end_position, token)
+
+        self.set_token_at_position(start_position.unwrap(), Token::None);
+        self.set_token_at_position(end_position, token);
+
+        let is_token_in_mill_before = self.search_for_mill(start_position.unwrap(), token);
+        let is_token_in_mill_after = self.search_for_mill(end_position, token);
+
+        if !is_token_in_mill_before && is_token_in_mill_after {
+            return true
+        }
+
+        return false
     }
     
     fn is_move_valid(&self, start_position: Option<usize>, end_position: usize) -> bool {
@@ -122,6 +140,85 @@ impl GameState {
 
         if start_position.abs_diff(end_position) == 1 {
             return true
+        }
+
+        return false
+    }
+
+    fn search_for_mill(&self, position: usize, token_type: Token) -> bool {
+        if self.positions[position] != token_type {
+            return false
+        }
+
+        if position % 2 == 1 {
+            if [7, 15, 23].contains(&position)
+               && self.positions[position - 1] == token_type && self.positions[position - 7] == token_type {
+                return true
+            }
+            
+            if self.positions[position - 1] == token_type && self.positions[position + 1] == token_type {
+                return true
+            }
+
+            return self.search_for_vertical_mill(position as isize, token_type)
+        } else {
+            return self.search_for_horizontal_mill(position, token_type)
+        }
+    }
+
+    fn search_for_vertical_mill(&self, position: isize, token_type: Token) -> bool {
+        let distance_between_rings = 8;
+        let max_position = 23;
+
+        if position + distance_between_rings <= max_position
+           && position + distance_between_rings * 2 <= max_position 
+           && self.positions[(position + distance_between_rings) as usize] == token_type
+           && self.positions[(position + distance_between_rings * 2) as usize] == token_type {
+            return true
+        }
+
+        if position + distance_between_rings <= max_position
+           && position - distance_between_rings > 0 
+           && self.positions[(position + distance_between_rings) as usize] == token_type
+           && self.positions[(position - distance_between_rings) as usize] == token_type {
+            return true
+        }
+
+        if position - distance_between_rings > 0
+           && position - distance_between_rings * 2 > 0 
+           && self.positions[(position - distance_between_rings) as usize] == token_type
+           && self.positions[(position - distance_between_rings * 2) as usize] == token_type {
+            return true
+        }
+
+        return  false
+    }
+
+    fn search_for_horizontal_mill(&self, position: usize, token_type: Token) -> bool {
+        if [0, 8, 16].contains(&position) {
+            if self.positions[position + 7] == token_type && self.positions[position + 6] == token_type {
+                return true
+            }
+
+            if self.positions[position + 1] == token_type && self.positions[position + 2] == token_type {
+                return true
+            }
+        } else if [6, 14, 22].contains(&position) {
+            if self.positions[position - 1] == token_type && self.positions[position - 2] == token_type {
+                return true
+            }
+
+            if self.positions[position + 1] == token_type && self.positions[position - 6] == token_type {
+                return true
+            }
+        } else {
+            if self.positions[position - 1] == token_type && self.positions[position - 2] == token_type {
+                return true
+            }
+
+            if self.positions[position + 1] == token_type && self.positions[position + 2] == token_type {
+                return true
+            }
         }
 
         return false
@@ -204,6 +301,9 @@ mod tests {
         game.move_to(None, 16);
         assert_eq!(game.get_token_at_position(16), Token::Black);
 
+        // mill at set phase
+        game.move_to(None, 23);
+        assert!(game.move_to(None, 22));
 
         // move phase
         let mut game2 = generate_example_positions();
@@ -229,6 +329,13 @@ mod tests {
         assert_eq!(game2.get_token_at_position(13), Token::None);
         assert_eq!(game2.get_token_at_position(21), Token::White);
 
+        // mill in move phase
+        game2.player_turn = 2;
+        assert_eq!(game2.get_token_at_position(15), Token::Black);
+        assert_eq!(game2.get_token_at_position(23), Token::None);
+        assert!(game2.move_to(Some(15), 23));
+        assert_eq!(game2.get_token_at_position(23), Token::Black);
+
         // endphase
         let mut game3 = GameState::default();
         game3.token_set_at_beginning = 0;
@@ -241,6 +348,17 @@ mod tests {
         game3.move_to(Some(0), 3);
         assert_eq!(game3.get_token_at_position(0), Token::None);
         assert_eq!(game3.get_token_at_position(3), Token::White);
+
+        // mill endphase
+        assert_eq!(game3.get_token_at_position(12), Token::White);
+        assert_eq!(game3.get_token_at_position(2), Token::None);
+        assert!(game3.move_to(Some(12), 2));
+        assert_eq!(game3.get_token_at_position(2), Token::White);
+
+        assert_eq!(game3.get_token_at_position(2), Token::White);
+        assert_eq!(game3.get_token_at_position(5), Token::None);
+        assert!(!game3.move_to(Some(2), 5));
+        assert_eq!(game3.get_token_at_position(5), Token::White);
     }
 
     #[test]
@@ -344,5 +462,46 @@ mod tests {
         assert_eq!(GameState::is_neighbor(2, 4), false);
         assert_eq!(GameState::is_neighbor(1, 17), false);
         assert_eq!(GameState::is_neighbor(21, 5), false);
+    }
+
+    #[test]
+    fn test_search_for_mill() {
+        let mut game = GameState::default();
+        game.set_token_at_position(0, Token::White);
+        game.set_token_at_position(1, Token::White);
+        game.set_token_at_position(2, Token::White);
+        game.set_token_at_position(7, Token::White);
+        game.set_token_at_position(19, Token::Black);
+        game.set_token_at_position(11, Token::Black);
+        game.set_token_at_position(3, Token::Black);
+        game.set_token_at_position(21, Token::Black);
+        game.set_token_at_position(13, Token::White);
+        game.set_token_at_position(5, Token::Black);
+        game.set_token_at_position(6, Token::Black);
+        game.set_token_at_position(4, Token::Black);
+        game.set_token_at_position(14, Token::White);
+        game.set_token_at_position(15, Token::White);
+        game.set_token_at_position(8, Token::White);
+
+        assert!(game.search_for_mill(0, Token::White));
+        assert!(!game.search_for_mill(0, Token::Black));
+        assert!(game.search_for_mill(1, Token::White));
+        assert!(game.search_for_mill(2, Token::White));
+        assert!(!game.search_for_mill(7, Token::White));
+        
+        assert!(game.search_for_mill(19, Token::Black));
+        assert!(game.search_for_mill(11, Token::Black));
+        assert!(game.search_for_mill(3, Token::Black));
+
+        assert!(!game.search_for_mill(21, Token::Black));
+        assert!(!game.search_for_mill(13, Token::Black));
+        assert!(!game.search_for_mill(13, Token::White));
+        assert!(game.search_for_mill(5, Token::Black));
+        assert!(!game.search_for_mill(5, Token::White));
+
+        assert!(game.search_for_mill(14, Token::White));
+        assert!(game.search_for_mill(15, Token::White));
+        assert!(!game.search_for_mill(15, Token::Black));
+        assert!(game.search_for_mill(8, Token::White));
     }
 }
