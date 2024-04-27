@@ -1,11 +1,22 @@
-use core::{panic};
+use core::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum Token {
+pub enum Token {
     None,
     Black,
     White
 }
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match self {
+           Token::None => write!(f, "□"),
+           Token::Black => write!(f, "B"),
+           Token::White => write!(f, "W"),
+       }
+    }
+}
+
 
 /**
  * The fields are odered in rings with the 0, 8, 16th Element in the top left of each ring
@@ -24,10 +35,11 @@ enum Token {
  *     14      13       12
  * 6            5               4
  */
-struct GameState {
+pub struct GameState {
     positions: [Token; 24],
     player_turn: u8,
-    token_set_at_beginning: u8
+    token_set_at_beginning: u8,
+    win: bool
 }
 
 impl Default for GameState {
@@ -35,17 +47,42 @@ impl Default for GameState {
         GameState {
             positions: [Token::None; 24],
             player_turn: 1,
-            token_set_at_beginning: 18
+            token_set_at_beginning: 18,
+            win: false
         }
     }
 }
 
 impl GameState {
-    fn get_token_at_position(&self, position: usize) -> Token {
+    pub fn get_token_set_at_beginning(&self) -> u8 {
+        self.token_set_at_beginning
+    }
+
+    pub fn get_player_turn(&self) -> u8 {
+        self.player_turn
+    }
+
+    pub fn change_player(&mut self) {
+        if self.player_turn == 1 {
+            self.player_turn = 2
+        } else {
+            self.player_turn = 1
+        }
+    }
+
+    pub fn get_win(&self) -> bool {
+        self.win
+    }
+
+    pub fn get_positions(&self) -> [Token; 24] {
+        self.positions
+    }
+
+    pub fn get_token_at_position(&self, position: usize) -> Token {
         return self.positions[position]
     }
 
-    fn set_token_at_position(&mut self, position: usize, token: Token) {
+    pub fn set_token_at_position(&mut self, position: usize, token: Token) {
         self.positions[position] = token;
     }
 
@@ -63,11 +100,7 @@ impl GameState {
     /**
      * Makes a move if it is valid and returns if a new mill emerged
      */
-    fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> Result<bool, &str> {
-        if !self.is_move_valid(start_position, end_position) {
-            return Err("Move is not valid!");
-        }
-
+    pub fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> bool {
         let token = if self.player_turn == 1 {
             Token::White   
         } else {
@@ -78,7 +111,7 @@ impl GameState {
             self.token_set_at_beginning -= 1;
             self.set_token_at_position(end_position, token);
             
-            return Ok(self.search_for_mill(end_position, token))
+            return self.search_for_mill(end_position, token)
         }
 
         self.set_token_at_position(start_position.unwrap(), Token::None);
@@ -88,13 +121,13 @@ impl GameState {
         let is_token_in_mill_after = self.search_for_mill(end_position, token);
 
         if !is_token_in_mill_before && is_token_in_mill_after {
-            return Ok(true)
+            return true
         }
 
-        return Ok(false)
+        return false
     }
     
-    fn is_move_valid(&self, start_position: Option<usize>, end_position: usize) -> bool {
+    pub fn is_move_valid(&self, start_position: Option<usize>, end_position: usize) -> bool {
         if start_position.is_none() {
             if self.token_set_at_beginning > 0 && self.get_token_at_position(end_position) == Token::None {
                 return true
@@ -222,6 +255,43 @@ impl GameState {
 
         return false
     }
+
+    pub fn is_beat_possible(&self, position: usize) -> bool {
+        let token_of_oponent = if self.player_turn == 2 {
+            Token::White   
+        } else {
+            Token::Black
+        };
+
+        if self.positions[position] != token_of_oponent {
+            return false
+        }
+
+        if !self.search_for_mill(position, token_of_oponent) {
+            return true
+        }
+        
+        let mut has_oponent_only_token_in_mill = true;
+        for (index, token) in self.positions.iter().enumerate() {
+            if !self.search_for_mill(index, token_of_oponent) && *token == token_of_oponent {
+                has_oponent_only_token_in_mill = false;
+            }
+        }
+
+        return has_oponent_only_token_in_mill
+    }
+
+    pub fn beat_token(&mut self, position: usize) {
+        self.set_token_at_position(position, Token::None);
+
+        if self.get_number_of_token(Token::White) < 3 {
+            self.win = true;
+            println!("Player 2 has won!")
+        } else if self.get_number_of_token(Token::Black) < 3 {
+            self.win = true;
+            println!("Player 1 has won!")
+        }
+    }
 }
 
 
@@ -229,7 +299,7 @@ impl GameState {
 mod tests {
     use crate::game_state::{GameState, Token};
 
-    fn generate_example_positions() -> GameState {
+    pub fn generate_example_positions() -> GameState {
         return GameState {
             positions: [
                 Token::None, Token::Black, Token::Black, Token::None, Token::None, Token::None, Token::White, Token::White, 
@@ -237,7 +307,8 @@ mod tests {
                 Token::Black, Token::None, Token::White, Token::Black, Token::White, Token::None, Token::Black, Token::None
             ], 
             player_turn: 1,
-            token_set_at_beginning: 18
+            token_set_at_beginning: 18,
+            win: false
         }
     }
 
@@ -302,7 +373,7 @@ mod tests {
 
         // mill at set phase
         game.move_to(None, 23);
-        assert!(game.move_to(None,22).unwrap());
+        assert!(game.move_to(None,22));
 
         // move phase
         let mut game2 = generate_example_positions();
@@ -332,7 +403,7 @@ mod tests {
         game2.player_turn = 2;
         assert_eq!(game2.get_token_at_position(15), Token::Black);
         assert_eq!(game2.get_token_at_position(23), Token::None);
-        assert!(game2.move_to(Some(15), 23).unwrap());
+        assert!(game2.move_to(Some(15), 23));
         assert_eq!(game2.get_token_at_position(23), Token::Black);
 
         // endphase
@@ -351,26 +422,13 @@ mod tests {
         // mill endphase
         assert_eq!(game3.get_token_at_position(12), Token::White);
         assert_eq!(game3.get_token_at_position(2), Token::None);
-        assert!(game3.move_to(Some(12), 2).unwrap());
+        assert!(game3.move_to(Some(12), 2));
         assert_eq!(game3.get_token_at_position(2), Token::White);
 
         assert_eq!(game3.get_token_at_position(2), Token::White);
         assert_eq!(game3.get_token_at_position(5), Token::None);
-        assert!(!game3.move_to(Some(2), 5).unwrap());
+        assert!(!game3.move_to(Some(2), 5));
         assert_eq!(game3.get_token_at_position(5), Token::White);
-    }
-
-    #[test]
-    fn test_move_to_panic() {
-        let mut game = generate_example_positions();
-        game.token_set_at_beginning = 0;
-
-        // without start_position not in the set phase
-        assert_eq!(game.move_to(None, 0).unwrap_err(), "Move is not valid!");
-        assert_eq!(game.move_to(Some(16), 17).unwrap_err(), "Move is not valid!");
-        assert_eq!(game.move_to(Some(18), 19).unwrap_err(), "Move is not valid!");
-        assert_eq!(game.move_to(Some(6), 14).unwrap_err(), "Move is not valid!");
-        assert_eq!(game.move_to(Some(5), 4).unwrap_err(), "Move is not valid!");
     }
 
     #[test]
@@ -465,5 +523,33 @@ mod tests {
         assert!(game.search_for_mill(15, Token::White));
         assert!(!game.search_for_mill(15, Token::Black));
         assert!(game.search_for_mill(8, Token::White));
+    }
+
+    #[test]
+    fn test_is_beat_possible() {
+        let mut game = GameState::default();
+        game.set_token_at_position(0, Token::White);
+        game.set_token_at_position(1, Token::White);
+        game.set_token_at_position(2, Token::White);
+        game.set_token_at_position(3, Token::White);
+        
+        game.set_token_at_position(4, Token::Black);
+        game.set_token_at_position(5, Token::Black);
+        game.set_token_at_position(6, Token::Black);
+        game.set_token_at_position(7, Token::Black);
+
+        assert!(game.is_beat_possible(7));
+        assert!(!game.is_beat_possible(0));
+        assert!(!game.is_beat_possible(4));
+        game.set_token_at_position(7, Token::None);
+        assert!(game.is_beat_possible(4));
+
+        game.player_turn = 2;
+        assert!(game.is_beat_possible(3));
+        assert!(!game.is_beat_possible(5));
+        assert!(!game.is_beat_possible(5));
+        assert!(!game.is_beat_possible(0));
+        game.set_token_at_position(3, Token::None);
+        assert!(game.is_beat_possible(0));
     }
 }
