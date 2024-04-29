@@ -284,6 +284,10 @@ impl GameState {
     pub fn beat_token(&mut self, position: usize) {
         self.set_token_at_position(position, Token::None);
 
+        if self.token_set_at_beginning > 0 {
+            return
+        }
+
         if self.get_number_of_token(Token::White) < 3 {
             self.win = true;
             println!("Player 2 has won!")
