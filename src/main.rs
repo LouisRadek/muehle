@@ -1,5 +1,7 @@
 mod game_state;
 mod rendering;
+mod r#move;
+mod mill;
 
 use std::io::{self};
 
