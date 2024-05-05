@@ -2,6 +2,7 @@ mod game_state;
 mod rendering;
 mod r#move;
 mod mill;
+mod agent;
 
 use std::io::{self};
 

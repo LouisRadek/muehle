@@ -9,9 +9,12 @@ impl GameState {
         }
 
         if position % 2 == 1 {
-            if [7, 15, 23].contains(&position)
-               && positions[position - 1] == token_type && positions[position - 7] == token_type {
-                return true
+            if [7, 15, 23].contains(&position) {
+                if positions[position - 1] == token_type && positions[position - 7] == token_type {
+                    return true
+                } else {
+                    return self.search_for_vertical_mill(position as isize, token_type)
+                }
             }
             
             if positions[position - 1] == token_type && positions[position + 1] == token_type {

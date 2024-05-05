@@ -17,6 +17,27 @@ impl fmt::Display for Token {
     }
 }
 
+impl Token {
+    pub fn to_char(token_type: Token) -> char {
+        if token_type == Token::None {
+            return 'E'
+        } else if token_type == Token::White {
+            return 'W'
+        } else {
+            return 'B'
+        }
+    }
+
+    pub fn parse_to_char(encoded_token: char) -> Token {
+        if encoded_token == 'E' {
+            return Token::None
+        } else if encoded_token == 'W' {
+            return Token::White
+        } else {
+            return Token::Black
+        }
+    }
+}
 
 /**
  * The fields are odered in rings with the 0, 8, 16th Element in the top left of each ring

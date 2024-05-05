@@ -24,7 +24,7 @@ impl GameState {
         let is_token_in_mill_before = self.search_for_mill(start_position.unwrap(), token);
         let is_token_in_mill_after = self.search_for_mill(end_position, token);
 
-        if !is_token_in_mill_before && is_token_in_mill_after {
+        if (!is_token_in_mill_before && is_token_in_mill_after) || (is_token_in_mill_before && is_token_in_mill_after) {
             return true
         }
 
@@ -66,18 +66,34 @@ impl GameState {
     }
 
     pub fn is_neighbor(start_position: usize, end_position: usize) -> bool {
-        if [0, 7, 8, 15, 16, 23].contains(&start_position) && start_position.abs_diff(end_position) == 7 {
+        if [0, 7].contains(&start_position) && [0, 7].contains(&end_position) {
             return true
         }
-
+    
+        if [8, 15].contains(&start_position) && [8, 15].contains(&end_position) {
+            return true
+        }
+    
+        if [16, 23].contains(&start_position) && [16, 23].contains(&end_position) {
+            return true
+        }
+    
+        if [7, 8].contains(&start_position) && [7, 8].contains(&end_position) {
+            return false
+        }
+    
+        if [15, 16].contains(&start_position) && [15, 16].contains(&end_position) {
+            return false
+        }
+    
         if start_position % 2 == 1 && start_position.abs_diff(end_position) == 8 {
             return true
         }
-
+    
         if start_position.abs_diff(end_position) == 1 {
             return true
         }
-
+    
         return false
     }
 }
