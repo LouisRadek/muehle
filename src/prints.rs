@@ -1,4 +1,4 @@
-use crate::game_state::Token;
+use crate::game_state::{GameState, Token};
 
 pub fn print_board(positions: [Token; 24]) {
     println!("{}------------{}------------{}                    0------------1------------2", positions[0], positions[1], positions[2]);
@@ -21,4 +21,18 @@ pub fn print_introduction_text() {
     println!("For the moves please use the Syntax and the indices printed beside the game board.");
     println!("Syntax: start_position,end_position or in the set phase: end_position (for the position use the indices).");
     println!("Have fun playing and may the odds be ever in your favor!\n");
+}
+
+pub fn print_move_instruction(game: &GameState) {
+    let phase = if game.get_token_set_at_beginning() > 0 {
+        "set phase"
+    } else {
+        "move phase"
+    };
+    let player = if game.get_player_turn() == 1 {
+        "Player 1"
+    } else {
+        "Player 2"
+    };
+    println!("{} has to do his move next ({}):", player, phase);
 }
