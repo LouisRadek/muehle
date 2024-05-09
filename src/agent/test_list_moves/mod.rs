@@ -43,23 +43,51 @@ fn get_moves_formatted(encoded_positions: String) -> (u8, u8, u8) {
 
 #[cfg(test)]
 pub mod tests {
-    use std::{fs::File, io::{self, BufRead, BufReader, Read, Write}};
+    use std::{fs::{File, OpenOptions}, io::{self, BufRead, BufReader, Read, Write}, path::PathBuf};
 
     use super::get_moves_formatted;
 
+    fn normalize_line_endings(input_path: PathBuf, output_path: PathBuf) -> io::Result<()> {
+        // Open input file for reading
+        let input_file = File::open(input_path)?;
+        let reader = BufReader::new(input_file);
+    
+        // Open output file for writing
+        let mut output_file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(output_path)?;
+    
+        // Process each line and write to output with desired line endings
+        for line in reader.lines() {
+            let line = line?;
+            writeln!(output_file, "{}", line)?;
+        }
+    
+        Ok(())
+    }
+
     #[test]
     fn test_get_moves_formatted() -> io::Result<()> {
-        let input = File::open("C:\\PROJECTS\\muehle\\src\\agent\\test_list_moves\\input_felder.txt")?;
+        let current_dir = std::env::current_dir()?.join("src").join("agent").join("test_list_moves");
+        let output_file_formatted = current_dir.clone().join("output_formatted_moves.txt");
+        let output_file_expected = current_dir.clone().join("output.txt");
+
+        let input = File::open(current_dir.clone().join("input_felder.txt"))?;
         let buffered = BufReader::new(input);
-        let mut output = File::create("C:\\PROJECTS\\muehle\\src\\agent\\test_list_moves\\output_formatted_moves.txt")?;
+        let mut output = File::create(output_file_formatted.clone())?;
 
         for line in buffered.lines() {
             let move_format = get_moves_formatted(line.unwrap());
             writeln!(output, "{} {} {}", move_format.0, move_format.1, move_format.2)?
         }
 
-        let mut expected_output = File::open("C:\\PROJECTS\\muehle\\src\\agent\\test_list_moves\\output.txt")?;
-        let mut generated_output = File::open("C:\\PROJECTS\\muehle\\src\\agent\\test_list_moves\\output_formatted_moves.txt")?;
+        let _ = normalize_line_endings(output_file_expected.clone(), current_dir.clone().join("output_formatted_normalized"));
+        let _ = normalize_line_endings(output_file_formatted.clone(), current_dir.clone().join("output_normalized"));
+        
+        let mut expected_output = File::open(current_dir.clone().join("output_formatted_normalized"))?;
+        let mut generated_output = File::open(current_dir.clone().join("output_normalized"))?;
 
         let mut buffer_expected_output = Vec::new();
         let mut buffer_generated_output = Vec::new();
@@ -68,7 +96,6 @@ pub mod tests {
         generated_output.read_to_end(&mut buffer_generated_output)?;
 
         assert!(buffer_expected_output == buffer_generated_output);
-
         Ok(())
     }
 
