@@ -1,6 +1,6 @@
 use crate::game_state::Token;
 
-use super::{r#move::{is_move_valid, is_neighbor}, utils::get_number_of_token};
+use super::utils::{get_number_of_token, is_move_valid};
 
 pub fn encode_positions(positions: [Token; 24]) -> String {
     let mut encoded_positions = String::new();
@@ -91,40 +91,5 @@ pub mod tests {
         
         assert_eq!(expected_decoded_positions, decode_positions(encoded_positions.to_string()));
         assert_eq!(expected_decoded_positions2, decode_positions(encoded_positions2.to_string()))
-    }
-
-    #[test]
-    fn test_list_moves() {
-        let mut game = generate_example_positions();
-        game.set_token_set_at_beginning(0);
-
-        fn callback((start_position, end_position): Move) {
-            println!("start: {}, end: {}", start_position.unwrap_or(100), end_position)
-        }
-
-        list_moves(game.get_positions(), Token::White, game.get_token_set_at_beginning(), callback)
-
-        /* * Expected for white
-          *  start: 6, end: 5
-          *  start: 7, end: 0
-          *  start: 9, end: 17
-          *  start: 11, end: 3
-          *  start: 13, end: 5
-          *  start: 13, end: 14
-          *  start: 13, end: 21
-          *  start: 18, end: 17
-          *  start: 20, end: 21
-         */
-
-        /* * Expected for Black
-            start: 1, end: 0
-            start: 2, end: 3
-            start: 15, end: 14
-            start: 15, end: 23
-            start: 16, end: 17
-            start: 16, end: 23
-            start: 22, end: 21
-            start: 22, end: 23
-         */
     }
 }

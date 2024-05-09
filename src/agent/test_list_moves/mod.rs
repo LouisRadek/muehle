@@ -1,5 +1,5 @@
 use std::cell::Cell;
-use crate::{agent::mill_detection::{is_beat_possible, search_for_mill}, game_state::Token};
+use crate::{game_state::Token, mill_detection::{is_beat_possible, search_for_mill}};
 use super::enumerate::{decode_positions, list_moves, Move};
 
 fn get_moves_formatted(encoded_positions: String) -> (u8, u8, u8) {
@@ -97,11 +97,5 @@ pub mod tests {
 
         assert!(buffer_expected_output == buffer_generated_output);
         Ok(())
-    }
-
-    #[test]
-    fn test_test_list_moves() {
-        let result = get_moves_formatted("WWEEWBWEBWEWEBWBWEEEEEWE".to_string());
-        println!("{} {} {}", result.0, result.1, result.2)
     }
 }
