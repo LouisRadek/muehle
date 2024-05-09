@@ -1,13 +1,15 @@
 mod game_state;
 mod rendering;
 mod r#move;
-mod mill;
+mod mill_detection;
 mod agent;
 
 use std::io::{self};
 
 use game_state::GameState;
 use regex::Regex;
+
+use crate::{game_state::Token, mill_detection::is_beat_possible};
 
 fn main() {
     let mut game = GameState::default();
@@ -73,7 +75,12 @@ fn main() {
                 }
     
                 let position = player_input.trim().parse().unwrap();
-                if !game.is_beat_possible(position) {
+                let token_of_player = if game.get_player_turn() == 1 {
+                    Token::White
+                } else {
+                    Token::Black
+                };
+                if !is_beat_possible(game.get_positions(), position, token_of_player) {
                     println!("Invalid position to beat a piece!");
                     continue
                 }
