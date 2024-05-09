@@ -1,4 +1,4 @@
-use crate::game_state::{GameState, Token};
+use crate::{game_state::{GameState, Token}, mill_detection::search_for_mill};
 
 impl GameState {
     /**
@@ -15,14 +15,14 @@ impl GameState {
             self.decrement_token_set_at_beginning();
             self.set_token_at_position(end_position, token);
             
-            return self.search_for_mill(end_position, token)
+            return search_for_mill(self.get_positions(), end_position, token)
         }
 
         self.set_token_at_position(start_position.unwrap(), Token::None);
         self.set_token_at_position(end_position, token);
 
-        let is_token_in_mill_before = self.search_for_mill(start_position.unwrap(), token);
-        let is_token_in_mill_after = self.search_for_mill(end_position, token);
+        let is_token_in_mill_before = search_for_mill(self.get_positions(), start_position.unwrap(), token);
+        let is_token_in_mill_after = search_for_mill(self.get_positions(), end_position, token);
 
         if (!is_token_in_mill_before && is_token_in_mill_after) || (is_token_in_mill_before && is_token_in_mill_after) {
             return true
@@ -46,7 +46,7 @@ impl GameState {
                     return true
                 }
                 
-                if GameState::is_neighbor(start_position.unwrap(), end_position) {
+                if is_neighbor(start_position.unwrap(), end_position) {
                     return true
                 }
             }
@@ -56,7 +56,7 @@ impl GameState {
                     return true
                 }
                 
-                if GameState::is_neighbor(start_position.unwrap(), end_position) {
+                if is_neighbor(start_position.unwrap(), end_position) {
                     return true
                 }
             }
@@ -64,43 +64,43 @@ impl GameState {
 
         return false
     }
+}
 
-    pub fn is_neighbor(start_position: usize, end_position: usize) -> bool {
-        if [0, 7].contains(&start_position) && [0, 7].contains(&end_position) {
-            return true
-        }
-    
-        if [8, 15].contains(&start_position) && [8, 15].contains(&end_position) {
-            return true
-        }
-    
-        if [16, 23].contains(&start_position) && [16, 23].contains(&end_position) {
-            return true
-        }
-    
-        if [7, 8].contains(&start_position) && [7, 8].contains(&end_position) {
-            return false
-        }
-    
-        if [15, 16].contains(&start_position) && [15, 16].contains(&end_position) {
-            return false
-        }
-    
-        if start_position % 2 == 1 && start_position.abs_diff(end_position) == 8 {
-            return true
-        }
-    
-        if start_position.abs_diff(end_position) == 1 {
-            return true
-        }
-    
+pub fn is_neighbor(start_position: usize, end_position: usize) -> bool {
+    if [0, 7].contains(&start_position) && [0, 7].contains(&end_position) {
+        return true
+    }
+
+    if [8, 15].contains(&start_position) && [8, 15].contains(&end_position) {
+        return true
+    }
+
+    if [16, 23].contains(&start_position) && [16, 23].contains(&end_position) {
+        return true
+    }
+
+    if [7, 8].contains(&start_position) && [7, 8].contains(&end_position) {
         return false
     }
+
+    if [15, 16].contains(&start_position) && [15, 16].contains(&end_position) {
+        return false
+    }
+
+    if start_position % 2 == 1 && start_position.abs_diff(end_position) == 8 {
+        return true
+    }
+
+    if start_position.abs_diff(end_position) == 1 {
+        return true
+    }
+
+    return false
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::game_state::{tests::generate_example_positions, GameState, Token};
+    use crate::{game_state::{tests::generate_example_positions, GameState, Token}, r#move::is_neighbor};
 
     #[test]
     fn test_move_to() {
@@ -211,21 +211,21 @@ mod tests {
 
     #[test]
     fn test_is_neighbor() {
-        assert_eq!(GameState::is_neighbor(0, 7), true);
-        assert_eq!(GameState::is_neighbor(0, 7), true);
-        assert_eq!(GameState::is_neighbor(0, 7), true);
-        assert_eq!(GameState::is_neighbor(1, 2), true);
-        assert_eq!(GameState::is_neighbor(13, 12), true);
-        assert_eq!(GameState::is_neighbor(19, 11), true);
-        assert_eq!(GameState::is_neighbor(9, 17), true);
-        assert_eq!(GameState::is_neighbor(5, 13), true);
+        assert_eq!(is_neighbor(0, 7), true);
+        assert_eq!(is_neighbor(0, 7), true);
+        assert_eq!(is_neighbor(0, 7), true);
+        assert_eq!(is_neighbor(1, 2), true);
+        assert_eq!(is_neighbor(13, 12), true);
+        assert_eq!(is_neighbor(19, 11), true);
+        assert_eq!(is_neighbor(9, 17), true);
+        assert_eq!(is_neighbor(5, 13), true);
 
-        assert_eq!(GameState::is_neighbor(0, 8), false);
-        assert_eq!(GameState::is_neighbor(2, 6), false);
-        assert_eq!(GameState::is_neighbor(22, 13), false);
-        assert_eq!(GameState::is_neighbor(23, 19), false);
-        assert_eq!(GameState::is_neighbor(2, 4), false);
-        assert_eq!(GameState::is_neighbor(1, 17), false);
-        assert_eq!(GameState::is_neighbor(21, 5), false);
+        assert_eq!(is_neighbor(0, 8), false);
+        assert_eq!(is_neighbor(2, 6), false);
+        assert_eq!(is_neighbor(22, 13), false);
+        assert_eq!(is_neighbor(23, 19), false);
+        assert_eq!(is_neighbor(2, 4), false);
+        assert_eq!(is_neighbor(1, 17), false);
+        assert_eq!(is_neighbor(21, 5), false);
     }
 }
