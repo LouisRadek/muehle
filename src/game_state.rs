@@ -131,6 +131,22 @@ impl GameState {
 
         return number_of_token_type
     }
+
+    pub fn beat_token(&mut self, position: usize) {
+        self.set_token_at_position(position, Token::None);
+    
+        if self.get_token_set_at_beginning() > 0 {
+            return
+        }
+    
+        if self.get_number_of_token(Token::White) < 3 {
+            self.set_win();
+            println!("Player 2 has won!")
+        } else if self.get_number_of_token(Token::Black) < 3 {
+            self.set_win();
+            println!("Player 1 has won!")
+        }
+    }
 }
 
 #[cfg(test)]
@@ -240,5 +256,32 @@ pub mod tests {
         let game2 = GameState::default();
         assert_eq!(game2.get_number_of_token(Token::Black), 0);
         assert_eq!(game2.get_number_of_token(Token::None), 24);
+    }
+
+    #[test]
+    fn test_beat_token() {
+        let mut game = GameState::default();
+        game.set_token_at_position(0, Token::White);
+        game.set_token_at_position(1, Token::White);
+        game.set_token_at_position(9, Token::White);
+        game.set_token_at_position(4, Token::Black);
+        game.set_token_at_position(23, Token::Black);
+        game.set_token_at_position(19, Token::Black);
+        game.set_token_at_position(14, Token::Black);
+
+        game.beat_token(0);
+        assert_eq!(game.get_token_at_position(0), Token::None);
+        assert_eq!(game.get_win(), false);
+
+        game.set_token_at_position(5, Token::White);
+        game.set_token_set_at_beginning(0);
+
+        game.beat_token(4);
+        assert_eq!(game.get_token_at_position(4), Token::None);
+        assert_eq!(game.get_win(), false);
+
+        game.beat_token(5);
+        assert_eq!(game.get_token_at_position(5), Token::None);
+        assert_eq!(game.get_win(), true);
     }
 }
