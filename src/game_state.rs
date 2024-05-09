@@ -160,6 +160,17 @@ pub mod tests {
     }
 
     #[test]
+    fn test_get_positions() {
+        let game = generate_example_positions();
+        let positions = [
+            Token::None, Token::Black, Token::Black, Token::None, Token::None, Token::None, Token::White, Token::White, 
+            Token::White, Token::White, Token::Black, Token::White, Token::Black, Token::White, Token::None, Token::Black, 
+            Token::Black, Token::None, Token::White, Token::Black, Token::White, Token::None, Token::Black, Token::None
+        ];
+        assert_eq!(positions, game.get_positions());
+    }
+
+    #[test]
     fn test_get_token_at_position() {
         let game = generate_example_positions();
 
@@ -181,6 +192,42 @@ pub mod tests {
 
         game.set_token_at_position(10, Token::White);
         assert_eq!(game.get_token_at_position(10), Token::White);
+    }
+
+    #[test]
+    fn test_get_player_turn() {
+        let game = generate_example_positions();
+        assert_eq!(game.player_turn, game.get_player_turn());
+    }
+
+    #[test]
+    fn test_change_player() {
+        let mut game = generate_example_positions();
+        game.change_player();
+        assert_eq!(game.player_turn, 2);
+        game.change_player();
+        assert_eq!(game.player_turn, 1);
+    }
+
+    #[test]
+    fn test_get_token_set_at_beginning() {
+        let game = generate_example_positions();
+        assert_eq!(game.token_set_at_beginning, 18);
+    }
+
+    #[test]
+    fn test_set_token_set_at_beginning() {
+        let mut game = generate_example_positions();
+        game.set_token_set_at_beginning(5);
+        assert_eq!(game.token_set_at_beginning, 5);
+    }
+
+    #[test]
+    fn test_get_set_win() {
+        let mut game = generate_example_positions();
+        assert!(!game.get_win());
+        game.set_win();
+        assert!(game.get_win());
     }
 
     #[test]
