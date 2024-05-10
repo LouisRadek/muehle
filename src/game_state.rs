@@ -59,8 +59,7 @@ impl Token {
 pub struct GameState {
     positions: [Token; 24],
     player_turn: u8,
-    token_set_at_beginning: u8,
-    win: bool
+    token_set_at_beginning: u8
 }
 
 impl Default for GameState {
@@ -68,8 +67,7 @@ impl Default for GameState {
         GameState {
             positions: [Token::None; 24],
             player_turn: 1,
-            token_set_at_beginning: 18,
-            win: false
+            token_set_at_beginning: 18
         }
     }
 }
@@ -113,14 +111,6 @@ impl GameState {
         }
     }
 
-    pub fn get_win(&self) -> bool {
-        self.win
-    }
-
-    pub fn set_win(&mut self) {
-        self.win = true
-    }
-
     pub fn get_number_of_token(&self, token_type: Token) -> u8 {
         let mut number_of_token_type: u8 = 0;
         for token in self.positions {
@@ -134,18 +124,22 @@ impl GameState {
 
     pub fn beat_token(&mut self, position: usize) {
         self.set_token_at_position(position, Token::None);
-    
+    }
+
+    pub fn check_win(&self) -> bool {
         if self.get_token_set_at_beginning() > 0 {
-            return
+            return false
         }
     
         if self.get_number_of_token(Token::White) < 3 {
-            self.set_win();
-            println!("Player 2 has won!")
+            println!("Player 2 has won!");
+            return true
         } else if self.get_number_of_token(Token::Black) < 3 {
-            self.set_win();
-            println!("Player 1 has won!")
+            println!("Player 1 has won!");
+            return true
         }
+
+        return false
     }
 }
 
@@ -161,8 +155,7 @@ pub mod tests {
                 Token::Black, Token::None, Token::White, Token::Black, Token::White, Token::None, Token::Black, Token::None
             ], 
             player_turn: 1,
-            token_set_at_beginning: 18,
-            win: false
+            token_set_at_beginning: 18
         }
     }
 
@@ -239,14 +232,6 @@ pub mod tests {
     }
 
     #[test]
-    fn test_get_set_win() {
-        let mut game = generate_example_positions();
-        assert!(!game.get_win());
-        game.set_win();
-        assert!(game.get_win());
-    }
-
-    #[test]
     fn test_get_number_of_token() {
         let game = generate_example_positions();
         assert_eq!(game.get_number_of_token(Token::Black), 8);
@@ -271,17 +256,14 @@ pub mod tests {
 
         game.beat_token(0);
         assert_eq!(game.get_token_at_position(0), Token::None);
-        assert_eq!(game.get_win(), false);
 
         game.set_token_at_position(5, Token::White);
         game.set_token_set_at_beginning(0);
 
         game.beat_token(4);
         assert_eq!(game.get_token_at_position(4), Token::None);
-        assert_eq!(game.get_win(), false);
 
         game.beat_token(5);
         assert_eq!(game.get_token_at_position(5), Token::None);
-        assert_eq!(game.get_win(), true);
     }
 }

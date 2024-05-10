@@ -12,7 +12,7 @@ fn main() {
     let mut game = GameState::default();
     prints::print_introduction_text();
     
-    while !game.get_win() {
+    loop {
         prints::print_board(game.get_positions());
         prints::print_move_instruction(&game);
         
@@ -30,6 +30,10 @@ fn main() {
         let is_mill_emerged = game.move_to(start_position, end_position);
         if is_mill_emerged {
             execute_beat_token(&mut game);
+
+            if game.check_win() {
+                break;
+            }
         }
 
         game.change_player()
