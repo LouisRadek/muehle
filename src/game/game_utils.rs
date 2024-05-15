@@ -1,7 +1,7 @@
 use std::io;
+use muehle::{game_state::{GameState, Token}, mill_detection::is_beat_possible};
 use regex::Regex;
 
-use crate::{game_state::{GameState, Token}, mill_detection::is_beat_possible};
 
 pub fn execute_beat_token(game: &mut GameState) {
     let mut is_beat_succeded = false;

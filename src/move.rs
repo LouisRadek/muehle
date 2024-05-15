@@ -100,7 +100,7 @@ pub fn is_neighbor(start_position: usize, end_position: usize) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{game_state::{tests::generate_example_positions, GameState, Token}, r#move::is_neighbor};
+    use crate::{game_state::{GameState, Token}, r#move::is_neighbor};
 
     #[test]
     fn test_move_to() {
@@ -121,7 +121,7 @@ mod tests {
         assert!(game.move_to(None,22));
 
         // move phase
-        let mut game2 = generate_example_positions();
+        let mut game2 = GameState::generate_example_positions();
         game2.set_token_set_at_beginning(0);
 
         assert_eq!(game2.get_token_at_position(7), Token::White);
@@ -188,7 +188,7 @@ mod tests {
         assert_eq!(game.is_move_valid(Some(0), 2), false);
 
         // move phase
-        let mut game2 = generate_example_positions();
+        let mut game2 = GameState::generate_example_positions();
         game2.set_token_set_at_beginning(0);
 
         assert_eq!(game2.is_move_valid(Some(7), 6), false);

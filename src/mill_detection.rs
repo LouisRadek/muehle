@@ -1,4 +1,4 @@
-use crate::game_state::{GameState, Token};
+use crate::game_state::Token;
 
 pub fn search_for_mill(positions: [Token; 24], position: usize, token_type: Token) -> bool {
     if positions[position] != token_type {

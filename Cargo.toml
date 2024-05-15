@@ -7,3 +7,11 @@ edition = "2021"
 
 [dependencies]
 regex = "1.10.4"
+
+[[bin]]
+name = "agent"
+path = "src/agent/main.rs"
+
+[[bin]]
+name = "game"
+path = "src/game/main.rs"

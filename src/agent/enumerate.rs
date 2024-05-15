@@ -1,4 +1,4 @@
-use crate::game_state::Token;
+use muehle::game_state::Token;
 
 use super::utils::{get_number_of_token, is_move_valid};
 
@@ -67,12 +67,14 @@ pub fn list_moves<F>(positions: [Token; 24], token_type: Token, token_set_at_beg
 
 #[cfg(test)]
 pub mod tests {
-    use crate::{agent::enumerate::{decode_positions, encode_positions, list_moves, Move}, game_state::{tests::generate_example_positions, GameState, Token}};
+    use muehle::game_state::GameState;
+
+    use crate::enumerate::{decode_positions, encode_positions};
 
     #[test]
     fn test_encode_positions() {
         let positions = GameState::default().get_positions();
-        let positions2 = generate_example_positions().get_positions();
+        let positions2 = GameState::generate_example_positions().get_positions();
 
         let expected_encoded_positions = "EEEEEEEEEEEEEEEEEEEEEEEE";
         let expected_encoded_positions2 = "BBEEEWWEWBWBWEBWEWBWEBEB";
@@ -87,7 +89,7 @@ pub mod tests {
         let encoded_positions2 = "BBEEEWWEWBWBWEBWEWBWEBEB";
 
         let expected_decoded_positions = GameState::default().get_positions();
-        let expected_decoded_positions2 = generate_example_positions().get_positions();
+        let expected_decoded_positions2 = GameState::generate_example_positions().get_positions();
         
         assert_eq!(expected_decoded_positions, decode_positions(encoded_positions.to_string()));
         assert_eq!(expected_decoded_positions2, decode_positions(encoded_positions2.to_string()))

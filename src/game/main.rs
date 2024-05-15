@@ -1,12 +1,7 @@
-mod game_state;
-mod prints;
-mod r#move;
-mod mill_detection;
-mod agent;
 mod game_utils;
 
-use game_state::GameState;
 use game_utils::{execute_beat_token, get_start_end_position, read_player_input};
+use muehle::{game_state::GameState, prints};
 
 fn main() {
     let mut game = GameState::default();

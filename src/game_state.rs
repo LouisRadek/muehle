@@ -141,11 +141,6 @@ impl GameState {
 
         return false
     }
-}
-
-#[cfg(test)]
-pub mod tests {
-    use crate::game_state::{GameState, Token};
 
     pub fn generate_example_positions() -> GameState {
         return GameState {
@@ -158,6 +153,11 @@ pub mod tests {
             token_set_at_beginning: 18
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::game_state::{GameState, Token};
 
     #[test]
     fn test_game_state() {
@@ -170,7 +170,7 @@ pub mod tests {
 
     #[test]
     fn test_get_positions() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
         let positions = [
             Token::None, Token::Black, Token::Black, Token::None, Token::None, Token::None, Token::White, Token::White, 
             Token::White, Token::White, Token::Black, Token::White, Token::Black, Token::White, Token::None, Token::Black, 
@@ -181,7 +181,7 @@ pub mod tests {
 
     #[test]
     fn test_get_token_at_position() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
 
         assert_eq!(game.get_token_at_position(0), Token::None);
         assert_eq!(game.get_token_at_position(1), Token::Black);
@@ -191,7 +191,7 @@ pub mod tests {
 
     #[test]
     fn test_set_token_at_position() {
-        let mut game = generate_example_positions();
+        let mut game = GameState::generate_example_positions();
 
         game.set_token_at_position(0, Token::Black);
         assert_eq!(game.get_token_at_position(0), Token::Black);
@@ -205,13 +205,13 @@ pub mod tests {
 
     #[test]
     fn test_get_player_turn() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
         assert_eq!(game.player_turn, game.get_player_turn());
     }
 
     #[test]
     fn test_change_player() {
-        let mut game = generate_example_positions();
+        let mut game = GameState::generate_example_positions();
         game.change_player();
         assert_eq!(game.player_turn, 2);
         game.change_player();
@@ -220,20 +220,20 @@ pub mod tests {
 
     #[test]
     fn test_get_token_set_at_beginning() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
         assert_eq!(game.token_set_at_beginning, 18);
     }
 
     #[test]
     fn test_set_token_set_at_beginning() {
-        let mut game = generate_example_positions();
+        let mut game = GameState::generate_example_positions();
         game.set_token_set_at_beginning(5);
         assert_eq!(game.token_set_at_beginning, 5);
     }
 
     #[test]
     fn test_get_number_of_token() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
         assert_eq!(game.get_number_of_token(Token::Black), 8);
         assert_eq!(game.get_number_of_token(Token::White), 8);
         assert_eq!(game.get_number_of_token(Token::None), 8);

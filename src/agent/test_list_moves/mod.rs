@@ -1,5 +1,6 @@
 use std::cell::Cell;
-use crate::{game_state::Token, mill_detection::{is_beat_possible, search_for_mill}};
+use muehle::{game_state::Token, mill_detection::{is_beat_possible, search_for_mill}};
+
 use super::enumerate::{decode_positions, list_moves, Move};
 
 fn get_moves_formatted(encoded_positions: String) -> (u8, u8, u8) {

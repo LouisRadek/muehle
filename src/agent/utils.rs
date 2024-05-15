@@ -1,4 +1,4 @@
-use crate::{game_state::Token, r#move::is_neighbor};
+use muehle::{game_state::Token, r#move::is_neighbor};
 
 pub fn get_number_of_token(positions: [Token; 24], token_type: Token) -> u8 {
     let mut number_of_token_type: u8 = 0;
@@ -29,11 +29,12 @@ pub fn is_move_valid(start_position: usize, end_position: usize, end_token: Toke
 
 #[cfg(test)]
 mod tests {
-    use crate::{agent::utils::{get_number_of_token, is_move_valid}, game_state::{tests::generate_example_positions, GameState, Token}};
+    use muehle::game_state::{GameState, Token};
+    use crate::utils::{get_number_of_token, is_move_valid};
 
     #[test]
     fn test_get_number_of_token() {
-        let game = generate_example_positions();
+        let game = GameState::generate_example_positions();
         assert_eq!(get_number_of_token(game.get_positions(), Token::Black), 8);
         assert_eq!(get_number_of_token(game.get_positions(), Token::White), 8);
         assert_eq!(get_number_of_token(game.get_positions(), Token::None), 8);
@@ -46,7 +47,7 @@ mod tests {
     #[test]
     fn test_is_move_valid() {
         // move phase
-        let mut game2 = generate_example_positions();
+        let mut game2 = GameState::generate_example_positions();
         game2.set_token_set_at_beginning(0);
 
         assert_eq!(is_move_valid(7, 6, Token::White, 9), false);
