@@ -39,8 +39,13 @@ pub fn decode_positions(encoded_positions: String) -> [Token; 24] {
 }
 
 pub type Move = (Option<usize>, usize);
-pub fn list_moves<F>(positions: [Token; 24], token_type: Token, token_set_at_beginning: u8, mut callback: F) where F: FnMut(Move) {
-    if token_set_at_beginning > 0 {
+#[derive(PartialEq)]
+pub enum Phase {
+    Set,
+    Move
+}
+pub fn list_moves<F>(positions: [Token; 24], token_type: Token, phase: Phase, mut callback: F) where F: FnMut(Move) {
+    if phase == Phase::Set {
         for (end_position, end_token) in positions.iter().enumerate() {
             if *end_token != Token::None {
                 continue;
@@ -49,17 +54,17 @@ pub fn list_moves<F>(positions: [Token; 24], token_type: Token, token_set_at_beg
             callback((None, end_position))
         }
         return;
-    }
-
-    let number_of_token_type = get_number_of_token(positions, token_type); 
-    for (start_position, token) in positions.iter().enumerate() {
-        if token_type != *token {
-            continue;
-        }
-
-        for (end_position, end_token) in positions.iter().enumerate() {
-            if is_move_valid(start_position, end_position, *end_token, number_of_token_type) {
-                callback((Some(start_position), end_position))
+    } else {
+        let number_of_token_type = get_number_of_token(positions, token_type); 
+        for (start_position, token) in positions.iter().enumerate() {
+            if token_type != *token {
+                continue;
+            }
+    
+            for (end_position, end_token) in positions.iter().enumerate() {
+                if is_move_valid(start_position, end_position, *end_token, number_of_token_type) {
+                    callback((Some(start_position), end_position))
+                }
             }
         }
     }
