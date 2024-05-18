@@ -1,9 +1,7 @@
 use std::cell::Cell;
 use muehle::{game_state::Token, mill_detection::{is_beat_possible, search_for_mill}};
-
-use crate::enumerate::Phase;
-
-use super::enumerate::{decode_positions, list_moves, Move};
+use crate::{enumerate::decode_positions, Phase};
+use super::generate_actions::list_moves;
 
 fn get_moves_formatted(encoded_positions: String) -> (u8, u8, u8) {
     let positions = decode_positions(encoded_positions);
@@ -11,23 +9,22 @@ fn get_moves_formatted(encoded_positions: String) -> (u8, u8, u8) {
     let number_of_emerged_mills: Cell<u8> = Cell::new(0);
     let mut number_of_token_to_beat: u8 = 0;
 
-    let callback = |(start_position, end_position): Move| {
+    let moves = list_moves(&positions, Token::White, Phase::Move);
+    for possible_move in moves {
         number_of_moves += 1;
-
-        let is_token_in_mill_before = search_for_mill(positions, start_position.unwrap(), Token::White);
-
-        let mut positions_move_fake = positions;
-        positions_move_fake[start_position.unwrap()] = Token::None;
-        positions_move_fake[end_position] = Token::White;
-
-        let is_token_in_mill_after = search_for_mill(positions_move_fake, end_position, Token::White);
         
-        if (!is_token_in_mill_before && is_token_in_mill_after) || (is_token_in_mill_before && is_token_in_mill_after) {
+        let mut positions_move_fake = positions;
+        if !possible_move.0.is_none() {
+            positions_move_fake[possible_move.0.unwrap()] = Token::None;
+        }
+        positions_move_fake[possible_move.1] = Token::White;
+
+        let is_token_in_mill_after = search_for_mill(positions_move_fake, possible_move.1, Token::White);
+        
+        if is_token_in_mill_after {
             number_of_emerged_mills.set(number_of_emerged_mills.get() + 1)
         }
-    };
-    
-    list_moves(positions, Token::White, Phase::Move, callback);
+    }
 
     if number_of_emerged_mills.get() > 0 {
         for (index, token) in positions.iter().enumerate() {
