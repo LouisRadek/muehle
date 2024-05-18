@@ -1,7 +1,7 @@
 use muehle::game_state::Token;
 use crate::{generate_actions::{generate_actions, list_moves}, utils::{get_number_of_mills, apply_action, get_number_of_token, get_winner}, Phase};
 
-pub fn minimax(positions: [Token; 24], depth: usize, mut maximizing_player: Token, phase: Phase) -> isize {
+pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta: isize, mut maximizing_player: Token, phase: Phase) -> isize {
     if depth == 0 || get_winner(positions) != Token::None {
         return evaluate_action(positions, phase);
     }
@@ -18,8 +18,13 @@ pub fn minimax(positions: [Token; 24], depth: usize, mut maximizing_player: Toke
                 maximizing_player
             );
 
-            let eval = minimax(new_positions, depth - 1, maximizing_player.negate(), phase);
-            max_eval = std::cmp::max(max_eval, eval)
+            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase);
+            max_eval = std::cmp::max(max_eval, eval);
+            
+            alpha = std::cmp::max(alpha, eval);
+            if beta <= alpha {
+                break;
+            }
         }
         return max_eval
     } else {
@@ -33,8 +38,13 @@ pub fn minimax(positions: [Token; 24], depth: usize, mut maximizing_player: Toke
                 maximizing_player
             );
 
-            let eval = minimax(new_positions, depth - 1, maximizing_player.negate(), phase);
+            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase);
             min_eval = std::cmp::min(min_eval, eval);
+            
+            beta = std::cmp::min(beta, eval);
+            if beta <= alpha {
+                break;
+            }
         }
         return min_eval
     }

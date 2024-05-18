@@ -20,6 +20,8 @@ pub enum Phase {
 
 fn main() {
     let depth = 2;
+    let alpha = isize::MIN;
+    let beta = isize::MAX;
 
     loop {
         let mut input = String::new();
@@ -57,7 +59,7 @@ fn main() {
                 possible_action.beatable_position, 
                 token_type
             );
-            let action_score = minimax(new_positions, depth, token_type, phase);
+            let action_score = minimax(new_positions, depth, alpha, beta, token_type, phase);
 
             if token_type == Token::White && action_score > best_score {
                 best_action = Some(possible_action);
