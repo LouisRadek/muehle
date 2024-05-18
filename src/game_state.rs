@@ -37,6 +37,14 @@ impl Token {
             return Token::Black
         }
     }
+
+    pub fn negate(&mut self) -> Token {
+        match self {
+            Token::Black => Token::White,
+            Token::White => Token::Black,
+            Token::None => Token::None
+        }
+    }
 }
 
 /**

@@ -1,26 +1,33 @@
 use muehle::game_state::Token;
 use crate::enumerate::decode_positions;
 use crate::generate_actions::generate_actions;
-use rand::Rng;
+use std::time::Instant;
+use crate::minimax::minimax;
+use crate::utils::apply_action;
 
 mod enumerate;
 mod utils;
 mod test_list_moves;
 mod generate_actions;
 mod action;
+mod minimax;
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Phase {
     Set,
     Move
 }
 
 fn main() {
+    let depth = 2;
+
     loop {
         let mut input = String::new();
 
         std::io::stdin().read_line(&mut input).expect("Failed to read line");
         
+        let now = Instant::now();
+
         let mut input = input.trim().split(" ");
         
         
@@ -36,15 +43,34 @@ fn main() {
             _ => panic!("Unknown color")
         };
         
+
         let positions = decode_positions(input.next().unwrap().parse().unwrap());
-        let mut actions = Vec::new();
-        let list_generate_actions = generate_actions(&positions, token_type, phase);
-        for possible_action in list_generate_actions {
-            actions.push(possible_action);
+        let actions = generate_actions(&positions, token_type, phase);
+        let mut best_action = None;
+        let mut best_score = if token_type == Token::White { isize::MIN } else { isize::MAX };
+
+        for possible_action in actions {
+            let new_positions = apply_action(
+                positions.clone(), 
+                possible_action.start_position, 
+                possible_action.end_position, 
+                possible_action.beatable_position, 
+                token_type
+            );
+            let action_score = minimax(new_positions, depth, token_type, phase);
+
+            if token_type == Token::White && action_score > best_score {
+                best_action = Some(possible_action);
+                best_score = action_score;
+            } else if token_type == Token::Black && action_score < best_score {
+                best_action = Some(possible_action);
+                best_score = action_score;
+            }
         }
         
-        let random_action_index = rand::thread_rng().gen_range(0..actions.len());
-        let encoded_move = actions[random_action_index].to_string();
-        println!("{}", encoded_move);
+        println!("{}", best_action.unwrap().to_string());
+
+
+        eprintln!("AI execution time was {:.3?}", now.elapsed());
     }
 }
