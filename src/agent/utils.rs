@@ -2,7 +2,7 @@ use muehle::{game_state::Token, mill_detection::search_for_mill, r#move::is_neig
 
 use crate::{generate_actions::list_moves, Phase};
 
-pub fn get_winner(positions: [Token; 24]) -> Token {
+pub fn get_winner(positions: [Token; 24], phase: Phase) -> Token {
     if list_moves(&positions, Token::White, Phase::Move).count() == 0 {
         return Token::Black
     }
@@ -11,11 +11,11 @@ pub fn get_winner(positions: [Token; 24]) -> Token {
         return Token::White
     }
 
-    if get_number_of_token(positions, Token::White) < 3 {
+    if phase == Phase::Move && get_number_of_token(positions, Token::White) < 3 {
         return Token::Black
     }
 
-    if get_number_of_token(positions, Token::Black) < 3 {
+    if phase == Phase::Move && get_number_of_token(positions, Token::Black) < 3 {
         return Token::White
     }
 
@@ -83,7 +83,7 @@ pub fn apply_action(
 #[cfg(test)]
 mod tests {
     use muehle::game_state::{GameState, Token};
-    use crate::utils::{apply_action, get_number_of_token, get_winner, is_move_valid};
+    use crate::{utils::{apply_action, get_number_of_token, get_winner, is_move_valid}, Phase};
 
     #[test]
     fn test_get_number_of_token() {
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn test_get_winner() {
         let game = GameState::generate_example_positions();
-        assert_eq!(Token::None, get_winner(game.get_positions()));
+        assert_eq!(Token::None, get_winner(game.get_positions(), Phase::Set));
 
         let mut game2 = GameState::default();
         game2.set_token_at_position(0, Token::White);
@@ -133,21 +133,21 @@ mod tests {
         game2.set_token_at_position(5, Token::Black);
         game2.set_token_at_position(6, Token::Black);
 
-        assert_eq!(Token::None, get_winner(game2.get_positions()));
+        assert_eq!(Token::None, get_winner(game2.get_positions(), Phase::Move));
 
         game2.set_token_at_position(0, Token::None);
-        assert_eq!(Token::Black, get_winner(game2.get_positions()));
+        assert_eq!(Token::Black, get_winner(game2.get_positions(), Phase::Move));
         
         game2.set_token_at_position(0, Token::White);
         game2.set_token_at_position(6, Token::None);
-        assert_eq!(Token::White, get_winner(game2.get_positions()));
+        assert_eq!(Token::White, get_winner(game2.get_positions(), Phase::Move));
 
         let game3 = [
             Token::None, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White,
             Token::White, Token::White, Token::White, Token::Black, Token::Black, Token::Black, Token::Black, Token::White,
             Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White 
         ];
-        assert_eq!(Token::White, get_winner(game3))
+        assert_eq!(Token::White, get_winner(game3, Phase::Move))
     }
 
     #[test]

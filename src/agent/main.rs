@@ -19,7 +19,7 @@ pub enum Phase {
 }
 
 fn main() {
-    let depth = 2;
+    let depth = 3;
     let alpha = isize::MIN;
     let beta = isize::MAX;
 
@@ -73,6 +73,6 @@ fn main() {
         println!("{}", best_action.unwrap().to_string());
 
 
-        eprintln!("AI execution time was {:.3?}", now.elapsed());
+        eprintln!("AI execution time was {:.3?} --- the best score found was {}", now.elapsed(), best_score);
     }
 }

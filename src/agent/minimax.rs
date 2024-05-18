@@ -2,7 +2,7 @@ use muehle::game_state::Token;
 use crate::{generate_actions::{generate_actions, list_moves}, utils::{get_number_of_mills, apply_action, get_number_of_token, get_winner}, Phase};
 
 pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta: isize, mut maximizing_player: Token, phase: Phase) -> isize {
-    if depth == 0 || get_winner(positions) != Token::None {
+    if depth == 0 || get_winner(positions, phase) != Token::None {
         return evaluate_action(positions, phase);
     }
 
@@ -51,11 +51,6 @@ pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta:
 }
 
 fn evaluate_action(positions: [Token; 24], phase: Phase) -> isize {
-    // Möglich ist eine Phasenunterscheidung
-    // the score could be the number of tokens of the maximazing player
-    // max score if maximizing player wins 
-    // of maximizing payer losses min score
-
     // maximizing_player
     // Anzahl Steine
     // Anzahl Mühlen (potentieller, blocked)
@@ -78,7 +73,7 @@ fn evaluate_action(positions: [Token; 24], phase: Phase) -> isize {
     // Mögliche Züge
     score += list_moves(&positions, Token::White, phase).count() as isize - list_moves(&positions, Token::Black, phase).count() as isize;
 
-    let winning_player = get_winner(positions);
+    let winning_player = get_winner(positions, phase);
     if winning_player == Token::White {
         return isize::MAX
     } else if winning_player == Token::Black {
