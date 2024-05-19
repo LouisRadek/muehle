@@ -3,7 +3,7 @@ use crate::enumerate::decode_positions;
 use crate::generate_actions::generate_actions;
 use std::time::Instant;
 use crate::minimax::minimax;
-use crate::utils::apply_action;
+use crate::utils::{apply_action, get_number_of_token};
 
 mod enumerate;
 mod utils;
@@ -19,11 +19,11 @@ pub enum Phase {
 }
 
 fn main() {
-    let depth = 3;
     let alpha = isize::MIN;
     let beta = isize::MAX;
-
+    
     loop {
+        let mut depth = 4;
         let mut input = String::new();
 
         std::io::stdin().read_line(&mut input).expect("Failed to read line");
@@ -51,9 +51,15 @@ fn main() {
         let mut best_action = None;
         let mut best_score = if token_type == Token::White { isize::MIN } else { isize::MAX };
 
+        if phase == Phase::Move && (get_number_of_token(positions, Token::Black) < 4 || get_number_of_token(positions, Token::White) < 4) {
+            depth = 2;
+        } else if phase == Phase::Set {
+            depth = 4;
+        }
+
         for possible_action in actions {
             let new_positions = apply_action(
-                positions.clone(), 
+                positions, 
                 possible_action.start_position, 
                 possible_action.end_position, 
                 possible_action.beatable_position, 
@@ -73,6 +79,6 @@ fn main() {
         println!("{}", best_action.unwrap().to_string());
 
 
-        eprintln!("AI execution time was {:.3?} --- the best score found was {}", now.elapsed(), best_score);
+        eprintln!("AI execution time was {:.3?} --- the best score found was {}, depth: {}", now.elapsed(), best_score, depth);
     }
 }

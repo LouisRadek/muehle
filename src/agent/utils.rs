@@ -1,16 +1,8 @@
 use muehle::{game_state::Token, mill_detection::search_for_mill, r#move::is_neighbor};
 
-use crate::{generate_actions::list_moves, Phase};
+use crate::Phase;
 
 pub fn get_winner(positions: [Token; 24], phase: Phase) -> Token {
-    if list_moves(&positions, Token::White, Phase::Move).count() == 0 {
-        return Token::Black
-    }
-
-    if list_moves(&positions, Token::Black, Phase::Move).count() == 0 {
-        return Token::White
-    }
-
     if phase == Phase::Move && get_number_of_token(positions, Token::White) < 3 {
         return Token::Black
     }
@@ -141,13 +133,6 @@ mod tests {
         game2.set_token_at_position(0, Token::White);
         game2.set_token_at_position(6, Token::None);
         assert_eq!(Token::White, get_winner(game2.get_positions(), Phase::Move));
-
-        let game3 = [
-            Token::None, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White,
-            Token::White, Token::White, Token::White, Token::Black, Token::Black, Token::Black, Token::Black, Token::White,
-            Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White, Token::White 
-        ];
-        assert_eq!(Token::White, get_winner(game3, Phase::Move))
     }
 
     #[test]
