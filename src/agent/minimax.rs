@@ -1,9 +1,13 @@
+use std::time::{Duration, Instant};
+
 use muehle::game_state::Token;
 use crate::{generate_actions::generate_actions, utils::{apply_action, get_winner}, Phase};
 
-pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta: isize, mut maximizing_player: Token, phase: Phase) -> isize {
-    if depth == 0 || get_winner(positions, phase) != Token::None {
-        return evaluate_action(positions, phase);
+pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta: isize, mut maximizing_player: Token, phase: Phase, time: Instant) -> Option<isize> {
+    if time.elapsed() > Duration::from_millis(980) {
+        return None;
+    } else if depth == 0 || get_winner(positions, phase) != Token::None {
+        return Some(evaluate_action(positions, phase));
     }
 
     let actions = generate_actions(&positions, maximizing_player, phase);
@@ -19,15 +23,18 @@ pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta:
                 maximizing_player
             );
 
-            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase);
-            max_eval = std::cmp::max(max_eval, eval);
+            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase, time);
+            if eval.is_none() {
+                return None;
+            }
+            max_eval = std::cmp::max(max_eval, eval.unwrap());
             
-            alpha = std::cmp::max(alpha, eval);
+            alpha = std::cmp::max(alpha, eval.unwrap());
             if beta <= alpha {
                 break;
             }
         }
-        return max_eval
+        return Some(max_eval)
     } else {
         let mut min_eval = isize::MAX;
         for action in actions {
@@ -39,15 +46,18 @@ pub fn minimax(positions: [Token; 24], depth: usize, mut alpha: isize, mut beta:
                 maximizing_player
             );
 
-            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase);
-            min_eval = std::cmp::min(min_eval, eval);
+            let eval = minimax(new_positions, depth - 1, alpha, beta, maximizing_player.negate(), phase, time);
+            if eval.is_none() {
+                return None;
+            }
+            min_eval = std::cmp::min(min_eval, eval.unwrap());
             
-            beta = std::cmp::min(beta, eval);
+            beta = std::cmp::min(beta, eval.unwrap());
             if beta <= alpha {
                 break;
             }
         }
-        return min_eval
+        return Some(min_eval)
     }
 }
 
