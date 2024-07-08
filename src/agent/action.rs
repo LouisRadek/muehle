@@ -1,22 +1,13 @@
-use crate::enumerate::encode_single_position;
+use std::iter;
 
+use crate::{position::{create_token_iter, encode_single_position, set_token_at}, utils::{get_number_of_tokens, is_beat_possible, is_mill_closing, is_move_valid}, Phase, PhaseEnum};
+
+// #####################################################################################################
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Action {
     pub start_position: Option<usize>,
     pub end_position: usize,
     pub beatable_position: Option<usize>,
-}
-
-impl Iterator for Action {
-    type Item = (Option<usize>, usize, Option<usize>);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.start_position.is_some() {
-            let start_position = self.start_position.take().unwrap();
-            Some((Some(start_position), self.end_position, self.beatable_position.take()))
-        } else {
-            None
-        }
-    }
 }
 
 impl Action {
@@ -48,9 +39,145 @@ impl ToString for Action {
             encoded_string.push(' ');
             encoded_string.push_str(encode_single_position(self.beatable_position.unwrap()).as_str());
         }
-    
+        
         return encoded_string;
     }
 }
 
+pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
+    list_moves(&board, token_type, phase)
+        .flat_map(move |applyed_move_board| {
+            if is_mill_closing(*board, applyed_move_board, token_type) {
+                return itertools::Either::Left(
+                    create_token_iter(*board).enumerate()
+                        .filter(move |(index, _)| is_beat_possible(*board, *index, token_type))
+                        .map(move |(beatable_position, _)| {
+                            set_token_at(applyed_move_board, beatable_position, 0b00)
+                        }))
+            } else {
+                itertools::Either::Right(iter::once(applyed_move_board))
+            }
+    })
+}
 
+pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
+    if phase.phase == PhaseEnum::Set {
+        let mut shifted: u64 = 0b11;
+        let token_extended: u64 = if token_type == 0b11 {
+            0b111111111111111111111111111111111111111111111111
+        } else {
+            0b101010101010101010101010101010101010101010101010
+        };
+
+        return itertools::Either::Left(
+            (0..24).filter_map(move |_| {
+                let result = if *board & shifted == 0 {
+                    Some(*board | (shifted & token_extended))
+                } else {
+                    None
+                };
+                shifted <<= 2;
+                result
+            }))
+    } else {
+        let number_of_token = get_number_of_tokens(*board, token_type);
+
+        return itertools::Either::Right(
+            create_token_iter(*board).enumerate()
+                .filter(move |(_, token)| *token == token_type)
+                    .flat_map(move |(start_position, _)| {
+                        create_token_iter(*board)
+                            .enumerate()
+                            .filter_map(move |(end_position, end_token)| {
+                                if is_move_valid(start_position, end_position, end_token, number_of_token) {
+                                    let new_board = set_token_at(*board, start_position, 0b00);
+                                    Some(set_token_at(new_board, end_position, token_type))
+                                } else {
+                                    None
+                                }
+                            })
+                    })
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{position::{print_board, set_token_at}, utils::get_action_from_board, Phase, PhaseEnum};
+
+    use super::*;
+
+    #[test]
+    fn test_speed_of_list_moves() {
+        let board = 0b111000000000111000000011000011001100101010101010; // 4.9s, 5.8s, 5.1s, 5.0s, 5.1s, 5.0s
+        let phase = Phase::new(PhaseEnum::Move, 17);
+        
+        let now = std::time::Instant::now();
+
+        for _ in 0..40000000 {
+            let _ = forward_step_boards(&board, 0b11, phase);
+        }
+        println!("The test took: {:?}", now.elapsed());
+    }
+
+    #[test]
+    fn test_generate_actions() {
+        use crate::position::decode_positions;
+        use crate::{Phase, PhaseEnum};
+
+        let now = std::time::Instant::now();
+
+        let board = "WBEEEEWBEEEWEEWEWEBBBBBB".to_string();
+        let decoded_board = decode_positions(board);
+
+        for forward_board in forward_step_boards(&decoded_board, 0b10, Phase::new(PhaseEnum::Set, 1)) {
+            println!("forward board: {}", forward_board);
+        }
+        println!("Time elapsed: {:?}", now.elapsed());
+    }
+
+    #[test]
+    fn test_list_moves() {
+        use crate::action::list_moves;
+        use crate::{Phase, PhaseEnum};
+
+        let board: u64 = 0b111000000000111000000011000011001100101010101010; // WBEEEEWBEEEWEEWEWEBBBBBB
+        let expected_moves = vec![
+            (Some(0), 8),
+            (Some(6), 5),
+            (Some(11), 10),
+            (Some(11), 12),
+            (Some(14), 13),
+            (Some(14), 15),
+            (Some(16), 8),
+            (Some(16), 17)
+        ];
+
+        let mut expected_boards = Vec::new();
+        for expected_move in expected_moves {
+            let mut applyed_move_board = board.clone();
+            applyed_move_board = set_token_at(applyed_move_board, expected_move.0.unwrap(), 0b00);
+            applyed_move_board = set_token_at(applyed_move_board, expected_move.1, 0b11);
+            expected_boards.push(applyed_move_board);
+        }
+
+        for ele in list_moves(&board, 0b11, Phase::new(PhaseEnum::Move, 1)) {
+            assert!(expected_boards.contains(&ele));
+        }
+    }
+
+    #[test]
+    fn test_forward_step_boards() {
+        use crate::position::{decode_positions, encode_positions};
+        use crate::{Phase, PhaseEnum};
+
+        let board = decode_positions("EEEEEEEEEEEEEEEEEWBWEBBW".to_string());
+        print_board(board);
+        println!("{}", encode_positions(board));
+
+        for forward_board in forward_step_boards(&board, 0b11, Phase::new(PhaseEnum::Set, 18)) {
+            let action = get_action_from_board(board, forward_board, 0b11);
+            println!("{}, move: start_{}, end_{}, beat_{}, --- {}", encode_positions(forward_board), action.start_position.unwrap_or(30), action.end_position, action.beatable_position.unwrap_or(30), action.to_string());
+        }
+    }
+}

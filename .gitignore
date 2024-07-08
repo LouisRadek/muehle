@@ -1,1 +1,4 @@
 /target
+/src/agent/test_list_moves/output_formatted_moves.txt
+/src/agent/test_list_moves/output_formatted_normalized.txt
+/src/agent/test_list_moves/output_normalized.txt

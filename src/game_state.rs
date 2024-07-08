@@ -47,23 +47,23 @@ impl Token {
     }
 }
 
-/**
- * The fields are odered in rings with the 0, 8, 16th Element in the top left of each ring
- * Visualisation:
- * 
- * 0            1               2
- * 
- *     8        9       10
- * 
- *         16  17  18
- * 
- * 7   15  23      19   11      3
- *          
- *         22  21  20   
- * 
- *     14      13       12
- * 6            5               4
- */
+/*
+    The fields are odered in rings with the 0, 8, 16th Element in the top left of each ring
+    Visualisation:
+
+        0            1               2
+
+            8        9       10
+
+                16  17  18
+
+        7   15  23      19   11      3
+                
+                22  21  20   
+
+            14      13       12
+        6            5               4
+*/
 pub struct GameState {
     positions: [Token; 24],
     player_turn: u8,
