@@ -2,8 +2,6 @@ use std::iter;
 
 use crate::{position::{create_token_iter, encode_single_position, set_token_at}, utils::{get_number_of_tokens, is_beat_possible, is_mill_closing, is_move_valid}, Phase, PhaseEnum};
 
-// #####################################################################################################
-#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Action {
     pub start_position: Option<usize>,
     pub end_position: usize,

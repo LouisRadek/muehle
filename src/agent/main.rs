@@ -5,6 +5,7 @@ use crate::position::decode_positions;
 use crate::action::forward_step_boards;
 use std::time::{Duration, Instant};
 use crate::minimax::minimax;
+use rayon::prelude::*;
 
 mod test_list_moves;
 mod action;
@@ -64,7 +65,7 @@ fn read_input(step_counter: u8) -> (Phase, u8, u64) {
 fn main() {
     let mut step_counter = 0;
     loop {
-        let (mut phase, token_type, board) = read_input(step_counter);
+        let (phase, token_type, board) = read_input(step_counter);
         let now = Instant::now();
         
         let mut depth = 0;
@@ -72,29 +73,30 @@ fn main() {
         let mut best_action_total = None;
         let mut best_score_total = if token_type == 0b11 { isize::MIN } else { isize::MAX };
         let mut last_depth_time_elapsed = Duration::from_secs(0);
-        
-        
+        let mut actions_with_scores: Vec<(u64, Option<isize>)> = Vec::with_capacity(500);
+
         'outer_loop: loop {
             depth += 1;
             let mut best_action = None;
             let mut best_score = if token_type == 0b11 { isize::MIN } else { isize::MAX };
-            for forward_board in forward_step_boards(&board, token_type, phase) {
-                let action_score = match minimax(forward_board, depth, isize::MIN, isize::MAX, negate_token(token_type), phase.increased(), now) {
-                    Some(score) => score,
-                    None => {
-                        break 'outer_loop;
-                    }
-                };
-                
-                if token_type == 0b11 && action_score >= best_score {
-                    best_action = Some(get_action_from_board(board, forward_board, token_type));
-                    best_score = action_score;
-                } else if token_type == 0b10 && action_score <= best_score {
-                    best_action = Some(get_action_from_board(board, forward_board, token_type));
-                    best_score = action_score;
+            actions_with_scores = forward_step_boards(&board, token_type, phase).par_bridge().map(|forward_board| {
+                (forward_board, minimax(forward_board, depth, isize::MIN, isize::MAX, negate_token(token_type), phase.clone().increased(), now))
+            }).collect();
+
+            for action_with_score in actions_with_scores.iter() {
+                if action_with_score.1.is_none() {
+                    break 'outer_loop;
+                }
+
+                if token_type == 0b11 && action_with_score.1.unwrap() >= best_score {
+                    best_action = Some(get_action_from_board(board, action_with_score.0, token_type));
+                    best_score = action_with_score.1.unwrap();
+                } else if token_type == 0b10 && action_with_score.1.unwrap() <= best_score {
+                    best_action = Some(get_action_from_board(board, action_with_score.0, token_type));
+                    best_score = action_with_score.1.unwrap();
                 }
             }
-            eprintln!("best_action: {}, depth: {}, time: {:?}", best_action.clone().unwrap().to_string(), depth, now.elapsed());
+
             best_action_total = best_action;
             best_score_total = best_score;
             last_depth_time_elapsed = now.elapsed();
