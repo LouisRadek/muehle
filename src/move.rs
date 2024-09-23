@@ -5,11 +5,7 @@ impl GameState {
      * Makes a move if it is valid and returns if a new mill emerged
      */
     pub fn move_to(&mut self, start_position: Option<usize>, end_position: usize) -> bool {
-        let token = if self.get_player_turn() == 1 {
-            Token::White   
-        } else {
-            Token::Black
-        };
+        let token = self.get_player_turn();
 
         if start_position.is_none() {
             self.decrement_token_set_at_beginning();
@@ -41,7 +37,7 @@ impl GameState {
         }
 
         if self.get_token_at_position(end_position) == Token::None {
-            if self.get_player_turn() == 1 && self.get_token_at_position(start_position.unwrap()) == Token::White {
+            if self.get_player_turn() == Token::White && self.get_token_at_position(start_position.unwrap()) == Token::White {
                 if self.get_number_of_token(Token::White) <= 3 {
                     return true
                 }
@@ -51,7 +47,7 @@ impl GameState {
                 }
             }
 
-            if self.get_player_turn() == 2 && self.get_token_at_position(start_position.unwrap()) == Token::Black {
+            if self.get_player_turn() == Token::Black && self.get_token_at_position(start_position.unwrap()) == Token::Black {
                 if self.get_number_of_token(Token::Black) <= 3 {
                     return true
                 }

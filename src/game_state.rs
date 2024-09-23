@@ -66,7 +66,7 @@ impl Token {
 */
 pub struct GameState {
     positions: [Token; 24],
-    player_turn: u8,
+    player_turn: Token,
     token_set_at_beginning: u8
 }
 
@@ -74,7 +74,7 @@ impl Default for GameState {
     fn default() -> GameState {
         GameState {
             positions: [Token::None; 24],
-            player_turn: 1,
+            player_turn: Token::White,
             token_set_at_beginning: 18
         }
     }
@@ -93,15 +93,15 @@ impl GameState {
         self.positions[position] = token;
     }
 
-    pub fn get_player_turn(&self) -> u8 {
+    pub fn get_player_turn(&self) -> Token {
         self.player_turn
     }
 
     pub fn change_player(&mut self) {
-        if self.player_turn == 1 {
-            self.player_turn = 2
+        if self.player_turn == Token::White {
+            self.player_turn = Token::Black
         } else {
-            self.player_turn = 1
+            self.player_turn = Token::White
         }
     }
 
@@ -157,7 +157,7 @@ impl GameState {
                 Token::White, Token::White, Token::Black, Token::White, Token::Black, Token::White, Token::None, Token::Black, 
                 Token::Black, Token::None, Token::White, Token::Black, Token::White, Token::None, Token::Black, Token::None
             ], 
-            player_turn: 1,
+            player_turn: Token::White,
             token_set_at_beginning: 18
         }
     }
@@ -172,7 +172,7 @@ mod tests {
         let game = GameState::default();
 
         assert_eq!(game.positions, [Token::None; 24]);
-        assert_eq!(game.player_turn, 1);
+        assert_eq!(game.player_turn, Token::White);
         assert_eq!(game.token_set_at_beginning, 18)
     }
 
@@ -221,9 +221,9 @@ mod tests {
     fn test_change_player() {
         let mut game = GameState::generate_example_positions();
         game.change_player();
-        assert_eq!(game.player_turn, 2);
+        assert_eq!(game.player_turn, Token::Black);
         game.change_player();
-        assert_eq!(game.player_turn, 1);
+        assert_eq!(game.player_turn, Token::White);
     }
 
     #[test]

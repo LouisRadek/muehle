@@ -29,7 +29,7 @@ pub fn print_move_instruction(game: &GameState) {
     } else {
         "move phase"
     };
-    let player = if game.get_player_turn() == 1 {
+    let player = if game.get_player_turn() == Token::White {
         "Player 1"
     } else {
         "Player 2"

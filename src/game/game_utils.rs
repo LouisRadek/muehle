@@ -14,12 +14,7 @@ pub fn execute_beat_token(game: &mut GameState) {
         };
     
         let position = player_input.trim().parse().unwrap();
-        let token_of_player = if game.get_player_turn() == 1 {
-            Token::White
-        } else {
-            Token::Black
-        };
-        if !is_beat_possible(game.get_positions(), position, token_of_player) {
+        if !is_beat_possible(game.get_positions(), position, game.get_player_turn()) {
             println!("Invalid position to beat a piece!");
             continue
         }
