@@ -10,6 +10,10 @@ itertools = "0.13.0"
 rand = "0.8.5"
 regex = "1.10.4"
 rayon = "1.10.0"
+ggez = "0.9.3"
+clap = "4.3.19"
+anyhow = "1.0.72"
+fnv = "1.0.7"
 
 [[bin]]
 name = "agent"
@@ -18,6 +22,10 @@ path = "src/agent/main.rs"
 [[bin]]
 name = "game"
 path = "src/game/main.rs"
+
+[[bin]]
+name = "ui-game"
+path = "src/ui-game/main.rs"
 
 [profile.release]
 lto = true
