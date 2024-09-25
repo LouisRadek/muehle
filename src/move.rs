@@ -1,4 +1,4 @@
-use crate::{game_state::Token, mill_detection::{is_all_part_of_mill, is_part_of_mill}, position::{get_token_at, negate_token}};
+use crate::{action::{Action, Move}, game_state::Token, mill_detection::{is_all_part_of_mill, is_part_of_mill}, position::{get_token_at, negate_token, set_token_at}};
 
 pub const NEIGHBORS: [[usize; 4]; 24] = [
     [1, 7, 8, 24],
@@ -43,6 +43,26 @@ fn is_neighbor(position1: usize, position2: usize) -> bool {
     NEIGHBORS[position1].contains(&position2)
 }
 
+pub fn apply_move(board: &u64, r#move: &Move, token_type: u8) -> u64 {
+    let mut new_board = board.clone();
+    if (r#move.start_position.is_some()) {
+        new_board = set_token_at(*board, r#move.start_position.unwrap(), 0b00);
+    }
+    set_token_at(new_board, r#move.end_position, token_type)
+}
+
+pub fn apply_action(board: &u64, action: &Action, token_type: u8) -> u64 {
+    let mut new_board = board.clone();
+    if (action.start_position.is_some()) {
+        new_board = set_token_at(*board, action.start_position.unwrap(), 0b00);
+    }
+    new_board = set_token_at(new_board, action.end_position, token_type);
+    if (action.beatable_position.is_some()) {
+        new_board = set_token_at(new_board, action.beatable_position.unwrap(), 0b00);
+    }
+    new_board
+}
+
 pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -> bool {
     let token_of_opponent: u8 = negate_token(token_current_player);
     
@@ -59,7 +79,7 @@ pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -
 
 #[cfg(test)]
 mod tests {
-    use crate::{r#move::{is_beat_possible, is_move_valid, is_neighbor}, position::set_token_at};
+    use crate::{action::{Action, Move}, game_state::Token, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid, is_neighbor}, position::{decode_positions, encode_positions, set_token_at}};
     
     #[test]
     fn test_is_move_valid() {
@@ -96,6 +116,27 @@ mod tests {
             assert_eq!(is_neighbor(16, 0), false);
         }
         println!("Time elapsed: {:?}", now.elapsed());
+    }
+
+    #[test]
+    fn test_apply_move() {
+        let board = decode_positions("WBWWWWBBBEEEEEEEEEEEEEEE".to_string());
+        let expected_board = decode_positions("WBWWWWBBEBEEEEEEEEEEEEEE".to_string());
+
+        assert_eq!(apply_move(&board, &Move::new(Some(8), 9), Token::parse_to_u8(Token::Black)), expected_board);
+    }
+
+    #[test]
+    fn test_apply_action() {
+        let board = decode_positions("WBWWWWBBBEEEEEEEEEEEEEEE".to_string());
+        let expected_board = decode_positions("WBWWWWBBEBEEEEEEEEEEEEEE".to_string());
+
+        assert_eq!(apply_action(&board, &Action::new(Some(8), 9, None), Token::parse_to_u8(Token::Black)), expected_board);
+
+        let board2 = decode_positions("WBWWWEWBBEEEEEEEEEEEEEEE".to_string());
+        let expected_board2 = decode_positions("WBWWWWEEBEEEEEEEEEEEEEEE".to_string());
+
+        assert_eq!(apply_action(&board2, &Action::new(Some(6), 5, Some(7)), Token::parse_to_u8(Token::White)), expected_board2);
     }
 
     #[test]
