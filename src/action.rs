@@ -1,7 +1,7 @@
 use std::iter;
 use crate::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid}, position::{self, create_token_iter, get_number_of_tokens, set_token_at}};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Action {
     pub start_position: Option<usize>,
     pub end_position: usize,
@@ -11,6 +11,30 @@ pub struct Action {
 impl Action {
     pub fn new(start_position: Option<usize>, end_position: usize, beatable_position: Option<usize>) -> Self {
         Action { start_position, end_position, beatable_position }
+    }
+
+    pub fn get_start_position(&self) -> Option<usize> {
+        self.start_position
+    }
+
+    pub fn set_start_position(&mut self, start_position: Option<usize>) {
+        self.start_position = start_position;
+    }
+
+    pub fn get_end_position(&self) -> usize {
+        self.end_position
+    }
+
+    pub fn set_end_position(&mut self, end_position: usize) {
+        self.end_position = end_position;
+    }
+
+    pub fn get_beatable_position(&self) -> Option<usize> {
+        self.beatable_position
+    }
+
+    pub fn set_beatable_position(&mut self, beatable_position: Option<usize>) {
+        self.beatable_position = beatable_position;
     }
 }
 

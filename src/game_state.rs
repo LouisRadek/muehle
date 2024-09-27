@@ -65,6 +65,7 @@ impl Token {
             13      12       11
         5            4               3
 */
+#[derive(Clone, Copy)]
 pub struct GameState {
     board: u64,
     player_turn: Token,
