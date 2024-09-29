@@ -1,5 +1,5 @@
 use std::iter;
-use crate::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid}, position::{self, create_token_iter, get_number_of_tokens, set_token_at}};
+use crate::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid}, position::{create_token_iter, get_number_of_tokens}};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Action {
@@ -11,30 +11,6 @@ pub struct Action {
 impl Action {
     pub fn new(start_position: Option<usize>, end_position: usize, beatable_position: Option<usize>) -> Self {
         Action { start_position, end_position, beatable_position }
-    }
-
-    pub fn get_start_position(&self) -> Option<usize> {
-        self.start_position
-    }
-
-    pub fn set_start_position(&mut self, start_position: Option<usize>) {
-        self.start_position = start_position;
-    }
-
-    pub fn get_end_position(&self) -> usize {
-        self.end_position
-    }
-
-    pub fn set_end_position(&mut self, end_position: usize) {
-        self.end_position = end_position;
-    }
-
-    pub fn get_beatable_position(&self) -> Option<usize> {
-        self.beatable_position
-    }
-
-    pub fn set_beatable_position(&mut self, beatable_position: Option<usize>) {
-        self.beatable_position = beatable_position;
     }
 }
 
@@ -104,7 +80,7 @@ fn list_moves_set_phase(board: u64) -> impl Iterator<Item=Move> {
     return create_token_iter(board)
         .enumerate()
         .filter_map(move |(position, token)| {
-            if (token == 0b00) {
+            if token == 0b00 {
                 Some(Move::new(None, position))
             } else {
                 None
@@ -114,10 +90,7 @@ fn list_moves_set_phase(board: u64) -> impl Iterator<Item=Move> {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Instant;
-
-    use crate::{action::forward_step_boards, game_state::{Phase, Token}, position::{decode_positions, set_token_at}};
-
+    use crate::{action::forward_step_boards, game_state::{Phase, Token}, position::decode_positions};
     use super::{list_actions, list_moves, list_moves_move_phase, list_moves_set_phase, Action, Move};
 
     #[test]
