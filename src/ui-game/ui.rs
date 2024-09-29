@@ -220,8 +220,9 @@ impl EventHandler for MuehleUi {
             };
             (format!("{}'s turn", self.game_state.get_player_turn()), subheading)
         };
-        canvas.draw(Text::new(&heading).set_scale(30.0), graphics::DrawParam::from([100.0, 20.0]));
-        canvas.draw(Text::new(subheading).set_scale(20.0), graphics::DrawParam::from([100.0, 54.0]));
+        let text_scale = (window_width / 800.0).min(window_height / 500.0);
+        canvas.draw(Text::new(&heading).set_scale(25.0 * text_scale), graphics::DrawParam::from([20.0 * text_scale, 20.0* text_scale]));
+        canvas.draw(Text::new(subheading).set_scale(15.0 * text_scale), graphics::DrawParam::from([20.0* text_scale, 54.0* text_scale]));
 
         canvas.finish(ctx).unwrap();
         Ok(())
