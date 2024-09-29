@@ -1,6 +1,6 @@
 use core::fmt;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Token {
     None,
     Black,
@@ -16,9 +16,9 @@ pub enum Phase {
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           Token::None => write!(f, "□"),
-           Token::Black => write!(f, "B"),
-           Token::White => write!(f, "W"),
+           Token::Black => write!(f, "Black"),
+           Token::White => write!(f, "White"),
+           Token::None => write!(f, "None")
        }
     }
 }
