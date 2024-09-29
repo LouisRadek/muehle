@@ -1,4 +1,4 @@
-use crate::position::{get_number_of_tokens, reverse_token_of_board};
+use crate::position::reverse_token_of_board;
 
 const POSSIBLE_MILLS_WHITE: [u64; 16] = [
     // horizontal mills

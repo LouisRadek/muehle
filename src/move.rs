@@ -45,7 +45,7 @@ fn is_neighbor(position1: usize, position2: usize) -> bool {
 
 pub fn apply_move(board: &u64, r#move: &Move, token_type: u8) -> u64 {
     let mut new_board = board.clone();
-    if (r#move.start_position.is_some()) {
+    if r#move.start_position.is_some() {
         new_board = set_token_at(*board, r#move.start_position.unwrap(), 0b00);
     }
     set_token_at(new_board, r#move.end_position, token_type)
@@ -53,11 +53,11 @@ pub fn apply_move(board: &u64, r#move: &Move, token_type: u8) -> u64 {
 
 pub fn apply_action(board: &u64, action: &Action, token_type: u8) -> u64 {
     let mut new_board = board.clone();
-    if (action.start_position.is_some()) {
+    if action.start_position.is_some() {
         new_board = set_token_at(*board, action.start_position.unwrap(), 0b00);
     }
     new_board = set_token_at(new_board, action.end_position, token_type);
-    if (action.beatable_position.is_some()) {
+    if action.beatable_position.is_some() {
         new_board = set_token_at(new_board, action.beatable_position.unwrap(), 0b00);
     }
     new_board
@@ -79,7 +79,7 @@ pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -
 
 #[cfg(test)]
 mod tests {
-    use crate::{action::{Action, Move}, game_state::Token, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid, is_neighbor}, position::{decode_positions, encode_positions, set_token_at}};
+    use crate::{action::{Action, Move}, game_state::Token, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid, is_neighbor}, position::{decode_positions, set_token_at}};
     
     #[test]
     fn test_is_move_valid() {
