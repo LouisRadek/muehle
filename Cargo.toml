@@ -20,10 +20,6 @@ name = "agent"
 path = "src/agent/main.rs"
 
 [[bin]]
-name = "game"
-path = "src/game/main.rs"
-
-[[bin]]
 name = "ui-game"
 path = "src/ui-game/main.rs"
 

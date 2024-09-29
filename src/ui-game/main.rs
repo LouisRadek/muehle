@@ -2,6 +2,7 @@ use ggez::{conf::{WindowMode, WindowSetup}, event, ContextBuilder};
 use ui::MuehleUi;
 
 mod ui;
+mod input;
 
 fn main() {
     // Make a Context
