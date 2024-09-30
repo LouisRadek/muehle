@@ -7,38 +7,38 @@ use crate::input::InputHandler;
 
 pub const SCREEN_POS: [(f32, f32); 24] = [
     // outer ring
-    (400.0, 65.0),
-    (580.0, 65.0),
-    (580.0, 250.0),
-    (580.0, 435.0),
-    (400.0, 435.0),
-    (215.0, 435.0),
-    (215.0, 250.0),
-    (215.0, 65.0),
+    (560.0, 90.0),
+    (1030.0, 90.0),
+    (1030.0, 560.0),
+    (1030.0, 1030.0),
+    (560.0, 1030.0),
+    (90.0, 1030.0),
+    (90.0, 560.0),
+    (90.0, 90.0),
     // middle ring
-    (400.0, 130.0),
-    (520.0, 130.0),
-    (520.0, 250.0),
-    (520.0, 370.0),
-    (400.0, 370.0),
-    (280.0, 370.0),
-    (280.0, 250.0),
-    (280.0, 130.0),
+    (560.0, 250.0),
+    (870.0, 250.0),
+    (870.0, 560.0),
+    (870.0, 870.0),
+    (560.0, 870.0),
+    (250.0, 870.0),
+    (250.0, 560.0),
+    (250.0, 250.0),
     // inner ring
-    (400.0, 190.0),
-    (460.0, 190.0),
-    (460.0, 250.0),
-    (460.0, 310.0),
-    (400.0, 310.0),
-    (340.0, 310.0),
-    (340.0, 250.0),
-    (340.0, 190.0)
+    (560.0, 410.0),
+    (710.0, 410.0),
+    (710.0, 560.0),
+    (710.0, 710.0),
+    (560.0, 710.0),
+    (410.0, 710.0),
+    (410.0, 560.0),
+    (410.0, 410.0)
 ];
 
 fn selected_position(x: f32, y: f32) -> Option<usize> {
     for p in 0..24 {
         let (x1, y1) = SCREEN_POS[p];
-        if (x - x1) * (x - x1) + (y - y1) * (y - y1) < 30.0 * 30.0 {
+        if (x - x1) * (x - x1) + (y - y1) * (y - y1) < 50.0 * 50.0 {
             return Some(p);
         }
     }
@@ -46,23 +46,26 @@ fn selected_position(x: f32, y: f32) -> Option<usize> {
 }
 
 pub fn get_token_draw_params(ctx: &mut Context, position: usize, resources: GameResources) -> DrawParam {
-    let (window_width, window_height) = ctx.gfx.drawable_size();
-    let (image_width, image_height) = (resources.game_board.width() as f32, resources.game_board.height() as f32);
-
-    let scale = (window_width / image_width).min(window_height / image_height);
-    let scaled_width = (image_width * scale) as f32;
-    let scaled_height = (image_height * scale) as f32;
-    let x_pos = (window_width - scaled_width) / 2.0;
-    let y_pos = (window_height - scaled_height) / 2.0;
+    let (scale, x_offset, y_offset) = get_scaling(ctx, resources.clone());
     
     let (mut x, mut y) = SCREEN_POS[position];
-    x = x * (scaled_width / 800.0) + x_pos;
-    y = y * (scaled_height / 500.0) + y_pos;
-
+    x = x * scale + x_offset;
+    y = y * scale + y_offset;
 
     DrawParam::default()
         .scale([scale, scale])
         .dest([x, y])
+}
+
+fn get_scaling(ctx: &mut Context, resources: GameResources) -> (f32, f32, f32) {
+    let (window_width, window_height) = ctx.gfx.drawable_size();
+    let (image_width, image_height) = (resources.game_board.width() as f32, resources.game_board.height() as f32);
+
+    let scale = (window_width / image_width).min(window_height / image_height);
+    let x_offset = (window_width - (image_width * scale)) / 2.0;
+    let y_offset = (window_height - (image_width * scale)) / 2.0;
+
+    (scale, x_offset, y_offset)
 }
 
 enum Winner {
@@ -122,8 +125,9 @@ impl MuehleUi {
 
 
         if game_state.get_phase() == Phase::Move {
-            if get_number_of_tokens(game_state.get_board(), Token::parse_to_u8(game_state.get_player_turn())) == 2 
-                || list_actions(&game_state.get_board(), Token::parse_to_u8(game_state.get_player_turn()), game_state.get_phase()).count() == 0 {
+            let parsed_player_token = Token::parse_to_u8(game_state.get_player_turn());
+            if get_number_of_tokens(game_state.get_board(), parsed_player_token) == 2 
+                || list_actions(&game_state.get_board(), parsed_player_token, game_state.get_phase()).count() == 0 {
                 self.winner = Some(match game_state.get_player_turn() {
                     Token::White => Winner::Black("".to_string()),
                     Token::Black => Winner::White("".to_string()),
@@ -163,19 +167,12 @@ impl EventHandler for MuehleUi {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::from_rgb(184, 111, 80));
 
-        // game board
-        let (window_width, window_height) = ctx.gfx.drawable_size();
-        let (image_width, image_height) = (self.resources.game_board.width() as f32, self.resources.game_board.height() as f32);
+        let (board_scale, x_offset, y_offset) = get_scaling(ctx, self.resources.clone());
+        canvas.draw(
+            &self.resources.game_board, 
+            DrawParam::default().scale([board_scale, board_scale]).dest([x_offset, y_offset])
+        );
 
-        let board_scale = (window_width / image_width).min(window_height / image_height);
-        let scaled_width = (image_width * board_scale) as f32;
-        let scaled_height = (image_height * board_scale) as f32;
-        let x_pos = (window_width - scaled_width) / 2.0;
-        let y_pos = (window_height - scaled_height) / 2.0;
-
-        canvas.draw(&self.resources.game_board, DrawParam::default().scale([board_scale, board_scale]).dest([x_pos, y_pos]));
-
-        // tokens
         if let Some(input) = self.input.as_ref() {
             input.create_highlight_mesh(ctx, &mut canvas, self.resources.clone());
         }
@@ -183,20 +180,6 @@ impl EventHandler for MuehleUi {
         create_token_iter(self.game_state.get_board())
             .enumerate()
             .for_each(|(position, token)| {
-                // match position {
-                //     1 | 2 | 3 =>  x += 70.0,
-                //     5 | 6 | 7 =>  x -= 70.0,
-                //     9 | 10 | 11 => x += 45.0,
-                //     13 | 14 | 15 => x -= 45.0,
-                //     17 | 18 | 19 => x += 22.5,
-                //     21 | 22 | 23 => x -= 22.5,
-                //     _ => {}
-                // }
-
-                // x -= 20.0;
-                // y -= 20.0;
-                
-                
                 let token_draw_params = get_token_draw_params(ctx, position, self.resources.clone());
                 match Token::parse_to_token(token) {
                     Token::White => canvas.draw(&self.resources.white_token, token_draw_params),
@@ -205,7 +188,6 @@ impl EventHandler for MuehleUi {
                 }
             });
 
-        // Text
         let (heading, subheading) = if let Some(winner) = self.winner.as_ref() {
             match winner {
                 Winner::White(s) => { ("White won".to_string(), s.deref()) }
@@ -220,9 +202,14 @@ impl EventHandler for MuehleUi {
             };
             (format!("{}'s turn", self.game_state.get_player_turn()), subheading)
         };
-        let text_scale = (window_width / 800.0).min(window_height / 500.0);
-        canvas.draw(Text::new(&heading).set_scale(25.0 * text_scale), graphics::DrawParam::from([20.0 * text_scale, 20.0* text_scale]));
-        canvas.draw(Text::new(subheading).set_scale(15.0 * text_scale), graphics::DrawParam::from([20.0* text_scale, 54.0* text_scale]));
+        canvas.draw(
+            Text::new(&heading).set_scale(60.0 * board_scale), 
+            graphics::DrawParam::from([20.0 * board_scale, 10.0* board_scale])
+        );
+        canvas.draw(
+            Text::new(subheading).set_scale(40.0 * board_scale), 
+            graphics::DrawParam::from([20.0* board_scale, 70.0* board_scale])
+        );
 
         canvas.finish(ctx).unwrap();
         Ok(())
@@ -235,14 +222,10 @@ impl EventHandler for MuehleUi {
         x: f32,
         y: f32,
     ) -> Result<(), GameError> {
-        let (width, height) = ctx.gfx.drawable_size();
-        let scale = (width / 800.0).min(height / 500.0);
+        let (scale, x_offset, y_offset) = get_scaling(ctx, self.resources.clone());
 
-        let offset_x = (width - (800.0 * scale)) / 2.0;
-        let offset_y = (height - (500.0 * scale)) / 2.0;
-
-        let adjusted_x = (x - offset_x) / scale;
-        let adjusted_y = (y - offset_y) / scale;
+        let adjusted_x = ((x - x_offset) / scale) - 80.0;
+        let adjusted_y = ((y - y_offset) / scale) - 80.0;
 
         if button == MouseButton::Left {
             if let Some(position) = selected_position(adjusted_x, adjusted_y) {
