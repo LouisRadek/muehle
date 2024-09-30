@@ -1,10 +1,10 @@
 use ggez::Context;
 use ggez::graphics::Canvas;
-use muehle::action::{list_actions, Action};
-use muehle::game_state::{GameState, Phase, Token};
-use muehle::position::get_token_at;
+use crate::logic::action::{list_actions, Action};
+use crate::logic::game_state::{GameState, Phase, Token};
+use crate::logic::position::get_token_at;
+use super::ui::{get_token_draw_params, GameResources};
 
-use crate::ui::{get_token_draw_params, GameResources};
 
 pub struct InputHandler {
     game_state: GameState,

@@ -94,7 +94,7 @@ pub const NEIGHBORS: [[usize; 4]; 24] = [
     [16, 22, 24, 24],
 ];
 
-use crate::{action::Action, position::{get_token_at, negate_token, BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION}, Phase, PhaseEnum};
+use crate::agent::{action::Action, position::{get_token_at, negate_token, BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION}, Phase, PhaseEnum};
 
 #[allow(dead_code)]
 pub fn get_winner(board: u64, phase: Phase) -> u8 {
@@ -335,12 +335,10 @@ pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_
 
 #[cfg(test)]
 mod tests {
-    use crate::{position::{decode_positions, reverse_token_of_board}, utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, is_mill_closing}};
+    use crate::{agent::{position::set_token_at, utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_number_of_tokens, get_possible_move_count, get_winner, insert_number_of_possible_moves_to_board, insert_token_count_to_board, is_beat_possible, is_mill_closing, is_move_valid, is_neighbor, is_part_of_mill}, Phase, PhaseEnum}, logic::position::{decode_positions, reverse_token_of_board}};
 
     #[test]
     fn test_get_winner() {
-        use crate::utils::get_winner;
-        use crate::{Phase, PhaseEnum};
         let board1 = 0b111100000000000000000000000000000000000000101010;
         let board2 =  0b111111101010101111000010001111110000001000100000;
         
@@ -354,7 +352,6 @@ mod tests {
 
     #[test]
     fn test_get_number_of_tokens() {
-        use crate::utils::get_number_of_tokens;
         
         let board1 = 0b0;
         let board2 = 0b101000000011110011101110110010110011101100100010;
@@ -453,8 +450,6 @@ mod tests {
 
     #[test]
     fn test_is_move_valid() {
-        use crate::utils::is_move_valid;
-
         // move phase
         assert_eq!(is_move_valid(7, 6, 0b11, 9), false);
         assert_eq!(is_move_valid(7, 0, 0b00, 9), true);
@@ -469,7 +464,6 @@ mod tests {
 
     #[test]
     fn test_is_neighbor() {
-        use crate::utils::is_neighbor;
         let now = std::time::Instant::now();
         for _ in 0..10000 {
             assert_eq!(is_neighbor(0, 1), true);
@@ -492,7 +486,6 @@ mod tests {
 
     #[test]
     fn test_is_part_of_mill() {
-        use crate::utils::is_part_of_mill;
         let board = 0b111111101010101111000010001111110000001000100000;
         let now = std::time::Instant::now();
         
@@ -549,9 +542,6 @@ mod tests {
 
     #[test]
     fn test_is_beat_possible() {
-        use crate::utils::is_beat_possible;
-        use crate::position::set_token_at;
-
         let mut board = 0b111111111010101000000000000000000000000000000000;
 
         let now = std::time::Instant::now();

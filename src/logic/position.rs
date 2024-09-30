@@ -1,4 +1,4 @@
-use crate::game_state::Token;
+use crate::logic::game_state::Token;
 
 pub fn get_token_at(board: u64, position: usize) -> Token {
     Token::parse_to_token(((board >> (46 - position * 2)) & 0b11) as u8)
@@ -91,11 +91,11 @@ pub fn encode_positions(board: u64) -> String {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::{game_state::Token, position::{get_number_of_tokens, reverse_token_of_board}};
+    use crate::logic::{game_state::Token, position::{decode_positions, encode_positions, get_number_of_tokens, get_token_at, negate_token, reverse_token_of_board}};
+    use super::create_token_iter;
 
     #[test]
     fn test_get_token_at() {
-        use crate::position::get_token_at;
         let board1: u64 = 0b101000000011110011101110110010110011101100100010; // BBEEEWWE WBWBWEBW EWBWEBEB
 
         assert_eq!(Token::Black, get_token_at(board1, 0));
@@ -136,7 +136,6 @@ pub mod tests {
 
     #[test]
     fn test_negate_token() {
-        use crate::position::negate_token;
         assert_eq!(0b11, negate_token(0b10));
         assert_eq!(0b10, negate_token(0b11));
         assert_eq!(0b00, negate_token(0b00));
@@ -154,7 +153,6 @@ pub mod tests {
 
     #[test]
     fn test_create_token_iter() {
-        use crate::position::create_token_iter;
         let board1: u64 = 0b0;
         for position in create_token_iter(board1) {
             assert_eq!(0b00, position);
@@ -207,7 +205,6 @@ pub mod tests {
 
     #[test]
     fn test_decode_positions() {
-        use crate::position::decode_positions;
         let encoded_positions = "EEEEEEEEEEEEEEEEEEEEEEEE";
         let encoded_positions2 = "BBEEEWWEWBWBWEBWEWBWEBEB";
         let encoded_positions3 = "WEEWEWBWBBEEBWEWEEEBEEEE";
@@ -223,7 +220,6 @@ pub mod tests {
 
     #[test]
     fn test_encode_positions() {
-        use crate::position::encode_positions;
         let positions = 0b0;
         let positions2 = 0b101000000011110011101110110010110011101100100010;
 

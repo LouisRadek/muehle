@@ -1,4 +1,4 @@
-use crate::{action::{Action, Move}, game_state::Token, mill_detection::{is_all_part_of_mill, is_part_of_mill}, position::{get_token_at, negate_token, set_token_at}};
+use crate::logic::{action::{Action, Move}, game_state::Token, mill_detection::{is_all_part_of_mill, is_part_of_mill}, position::{get_token_at, negate_token, set_token_at}};
 
 pub const NEIGHBORS: [[usize; 4]; 24] = [
     [1, 7, 8, 24],
@@ -79,7 +79,7 @@ pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -
 
 #[cfg(test)]
 mod tests {
-    use crate::{action::{Action, Move}, game_state::Token, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid, is_neighbor}, position::{decode_positions, set_token_at}};
+    use crate::logic::{action::{Action, Move}, game_state::Token, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid, is_neighbor}, position::{decode_positions, set_token_at}};
     
     #[test]
     fn test_is_move_valid() {

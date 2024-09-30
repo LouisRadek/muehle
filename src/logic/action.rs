@@ -1,5 +1,5 @@
 use std::iter;
-use crate::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid}, position::{create_token_iter, get_number_of_tokens}};
+use crate::logic::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_action, apply_move, is_beat_possible, is_move_valid}, position::{create_token_iter, get_number_of_tokens}};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Action {
@@ -90,7 +90,7 @@ fn list_moves_set_phase(board: u64) -> impl Iterator<Item=Move> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{action::forward_step_boards, game_state::{Phase, Token}, position::decode_positions};
+    use crate::logic::{action::forward_step_boards, game_state::{Phase, Token}, position::decode_positions};
     use super::{list_actions, list_moves, list_moves_move_phase, list_moves_set_phase, Action, Move};
 
     #[test]

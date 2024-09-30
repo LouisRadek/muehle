@@ -1,6 +1,6 @@
 use std::iter;
 
-use crate::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}, Phase, PhaseEnum};
+use crate::agent::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}, Phase, PhaseEnum};
 
 pub struct Action {
     pub start_position: Option<usize>,
@@ -124,7 +124,7 @@ pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iter
 
 #[cfg(test)]
 mod tests {
-    use crate::{position::{print_board, set_token_at}, utils::get_action_from_board, Phase, PhaseEnum};
+    use crate::agent::{position::{decode_positions, encode_positions, print_board, set_token_at}, utils::get_action_from_board, Phase, PhaseEnum};
 
     use super::*;
 
@@ -155,9 +155,6 @@ mod tests {
 
     #[test]
     fn test_generate_actions() {
-        use crate::position::decode_positions;
-        use crate::{Phase, PhaseEnum};
-
         let now = std::time::Instant::now();
 
         let board = "WBEEEEWBEEEWEEWEWEBBBBBB".to_string();
@@ -171,9 +168,6 @@ mod tests {
 
     #[test]
     fn test_list_moves() {
-        use crate::action::list_moves;
-        use crate::{Phase, PhaseEnum};
-
         let board: u64 = 0b111000000000111000000011000011001100101010101010; // WBEEEEWBEEEWEEWEWEBBBBBB
         let expected_moves = vec![
             (Some(0), 8),
@@ -201,9 +195,6 @@ mod tests {
 
     #[test]
     fn test_forward_step_boards() {
-        use crate::position::{decode_positions, encode_positions};
-        use crate::{Phase, PhaseEnum};
-
         let board = decode_positions("EEEEEEEEEEEEEEEEEWBWEBBW".to_string());
         print_board(board);
         println!("{}", encode_positions(board));

@@ -128,7 +128,7 @@ impl GameState {
 
 #[cfg(test)]
 mod tests {
-    use crate::{game_state::{GameState, Phase, Token}, position::decode_positions};
+    use crate::logic::{game_state::{GameState, Phase, Token}, position::decode_positions};
 
     #[test]
     fn test_game_state() {

@@ -1,9 +1,7 @@
 use std::{borrow::BorrowMut, collections::HashMap, ops::Deref};
-
 use ggez::{event::{EventHandler, MouseButton}, graphics::{self, Color, DrawParam, Image, Text}, Context, GameError, GameResult};
-use muehle::{action::{list_actions, Action}, game_state::{GameState, Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}};
-
-use crate::input::InputHandler;
+use crate::logic::{action::{list_actions, Action}, game_state::{GameState, Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}};
+use crate::ui::input::InputHandler;
 
 pub const SCREEN_POS: [(f32, f32); 24] = [
     // outer ring

@@ -1,4 +1,4 @@
-use crate::position::reverse_token_of_board;
+use crate::logic::position::reverse_token_of_board;
 
 const POSSIBLE_MILLS_WHITE: [u64; 16] = [
     // horizontal mills
@@ -89,7 +89,7 @@ pub fn is_all_part_of_mill(board: u64, token_of_opponent: u8) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{mill_detection::{is_all_part_of_mill, is_mill_closing, is_part_of_mill}, position::{decode_positions, reverse_token_of_board}};
+    use crate::logic::{mill_detection::{is_all_part_of_mill, is_mill_closing, is_part_of_mill}, position::{decode_positions, reverse_token_of_board}};
 
     #[test]
     fn test_is_part_of_mill() {

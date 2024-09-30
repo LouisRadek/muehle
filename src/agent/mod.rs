@@ -1,16 +1,14 @@
-use position::negate_token;
+use std::time::{Duration, Instant};
+use minimax::minimax;
+use action::forward_step_boards;
+use position::{decode_positions, negate_token};
+use rayon::iter::{ParallelBridge, ParallelIterator};
 use utils::{get_action_from_board, insert_number_of_possible_moves_to_board, insert_token_count_to_board};
 
-use crate::position::decode_positions;
-use crate::action::forward_step_boards;
-use std::time::{Duration, Instant};
-use crate::minimax::minimax;
-use rayon::prelude::*;
-
-mod action;
-mod minimax;
-mod position;
-mod utils;
+pub mod action;
+pub mod minimax;
+pub mod position;
+pub mod utils;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum PhaseEnum {

@@ -16,12 +16,8 @@ anyhow = "1.0.72"
 fnv = "1.0.7"
 
 [[bin]]
-name = "agent"
-path = "src/agent/main.rs"
-
-[[bin]]
-name = "ui-game"
-path = "src/ui-game/main.rs"
+name = "muele"
+path = "src/main.rs"
 
 [profile.release]
 lto = true
