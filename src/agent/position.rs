@@ -1,3 +1,18 @@
+/*
+    One Board u64 looks like:
+        log_2(4*9) = 5.17
+        5 bits with possible moves for white
+        5 bits with possible moves for black
+        3 bits with number of white tokens
+        3 bits with number of black tokens
+        48 bits with the board itself
+*/
+
+pub const WHITE_TOKEN_FIRST_POSITION: u64 =          0b0000000000001000000000000000000000000000000000000000000000000000;
+pub const BLACK_TOKEN_FIRST_POSITION: u64 =          0b0000000000000001000000000000000000000000000000000000000000000000;
+pub const WHITE_POSSIBLE_MOVES_FIRST_POSITION: u64 = 0b0000100000000000000000000000000000000000000000000000000000000000;
+pub const BLACK_POSSIBLE_MOVES_FIRST_POSITION: u64 = 0b0000000001000000000000000000000000000000000000000000000000000000;
+
 #[allow(dead_code)]
 pub fn encode_positions(board: u64) -> String {
     let mut encoded_positions = String::new();

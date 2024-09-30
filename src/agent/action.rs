@@ -1,6 +1,6 @@
 use std::iter;
 
-use crate::{position::{create_token_iter, encode_single_position, set_token_at}, utils::{get_number_of_tokens, is_beat_possible, is_mill_closing, is_move_valid}, Phase, PhaseEnum};
+use crate::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}, Phase, PhaseEnum};
 
 pub struct Action {
     pub start_position: Option<usize>,
@@ -43,14 +43,20 @@ impl ToString for Action {
 }
 
 pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
-    list_moves(&board, token_type, phase)
+    list_moves(board, token_type, phase)
         .flat_map(move |applyed_move_board| {
             if is_mill_closing(*board, applyed_move_board, token_type) {
-                return itertools::Either::Left(
+                itertools::Either::Left(
                     create_token_iter(*board).enumerate()
                         .filter(move |(index, _)| is_beat_possible(*board, *index, token_type))
                         .map(move |(beatable_position, _)| {
-                            set_token_at(applyed_move_board, beatable_position, 0b00)
+                            let mut new_board = set_token_at(applyed_move_board, beatable_position, 0b00);
+                            new_board -= if token_type == 0b11 {
+                                BLACK_TOKEN_FIRST_POSITION
+                            } else {
+                                WHITE_TOKEN_FIRST_POSITION
+                            };
+                            update_possible_move_count(new_board, negate_token(token_type), beatable_position, true)
                         }))
             } else {
                 itertools::Either::Right(iter::once(applyed_move_board))
@@ -59,18 +65,28 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: Phase) -> 
 }
 
 pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
+    let token_extended: u64 = if token_type == 0b11 {
+        0b111111111111111111111111111111111111111111111111
+    } else {
+        0b101010101010101010101010101010101010101010101010
+    };
+
     if phase.phase == PhaseEnum::Set {
         let mut shifted: u64 = 0b11;
-        let token_extended: u64 = if token_type == 0b11 {
-            0b111111111111111111111111111111111111111111111111
-        } else {
-            0b101010101010101010101010101010101010101010101010
-        };
 
         return itertools::Either::Left(
-            (0..24).filter_map(move |_| {
+            (0..24).filter_map(move |index| {
                 let result = if *board & shifted == 0 {
-                    Some(*board | (shifted & token_extended))
+                    let mut new_board = *board | (shifted & token_extended);
+                    if phase.step_counter >= 4 {
+                        if token_type == 0b11 {
+                            new_board += WHITE_TOKEN_FIRST_POSITION;
+                        } else {
+                            new_board += BLACK_TOKEN_FIRST_POSITION;
+                        }
+                    }
+                    new_board = update_possible_move_count(new_board, token_type, 23 - index, false);
+                    Some(new_board)
                 } else {
                     None
                 };
@@ -78,17 +94,24 @@ pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iter
                 result
             }))
     } else {
-        let number_of_token = get_number_of_tokens(*board, token_type);
+        let number_of_token = if token_type == 0b11 {
+            extract_white_token_count_from_board(*board)
+        } else {
+            extract_black_token_count_from_board(*board)
+        };
 
         return itertools::Either::Right(
             create_token_iter(*board).enumerate()
                 .filter(move |(_, token)| *token == token_type)
                     .flat_map(move |(start_position, _)| {
+                        let mut new_board = set_token_at(*board, start_position, 0b00);
+                        new_board = update_possible_move_count(new_board, token_type, start_position, true);
+
                         create_token_iter(*board)
                             .enumerate()
                             .filter_map(move |(end_position, end_token)| {
-                                if is_move_valid(start_position, end_position, end_token, number_of_token) {
-                                    let new_board = set_token_at(*board, start_position, 0b00);
+                                if is_move_valid(start_position, end_position, end_token, number_of_token as u8) {
+                                    new_board = update_possible_move_count(new_board, token_type, end_position, false);
                                     Some(set_token_at(new_board, end_position, token_type))
                                 } else {
                                     None
@@ -104,6 +127,18 @@ mod tests {
     use crate::{position::{print_board, set_token_at}, utils::get_action_from_board, Phase, PhaseEnum};
 
     use super::*;
+
+    #[test]
+    fn test_forward_step_boards2() {
+        let board = 0b0;
+        let phase = Phase::new(PhaseEnum::Set, 0);
+
+        for forward_step in forward_step_boards(&board, 0b11, phase) {
+            for inner_forward_step in forward_step_boards(&forward_step, 0b10, phase) {
+                println!("{:#066b}", inner_forward_step);
+            }
+        }
+    }
 
     #[test]
     fn test_speed_of_list_moves() {

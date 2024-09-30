@@ -1,5 +1,5 @@
 use position::negate_token;
-use utils::get_action_from_board;
+use utils::{get_action_from_board, insert_number_of_possible_moves_to_board, insert_token_count_to_board};
 
 use crate::position::decode_positions;
 use crate::action::forward_step_boards;
@@ -30,7 +30,7 @@ impl Phase {
             step_counter
         }
     }
-    pub fn increased(&mut self) -> Self {
+    pub fn increased(&self) -> Self {
         let mut new_phase = Phase::new(self.phase, self.step_counter + 1);
         if new_phase.phase == PhaseEnum::Set && new_phase.step_counter >= 18 {
             new_phase.phase = PhaseEnum::Move;
@@ -57,11 +57,14 @@ fn read_input(step_counter: u8) -> (Phase, u8, u64) {
         "W" => 0b11,
         _ => panic!("Unknown color")
     };
-    let board = decode_positions(input.next().unwrap().parse().unwrap());
+    let mut board = decode_positions(input.next().unwrap().parse().unwrap());
+    board = insert_token_count_to_board(board);
+    board = insert_number_of_possible_moves_to_board(board);
 
     (phase, token_type, board)
 }
 
+#[allow(unused_assignments)]
 fn main() {
     let mut step_counter = 0;
     loop {
@@ -83,7 +86,7 @@ fn main() {
                 (forward_board, minimax(forward_board, depth, isize::MIN, isize::MAX, negate_token(token_type), phase.clone().increased(), now))
             }).collect();
 
-            for action_with_score in actions_with_scores.iter() {
+            for action_with_score in actions_with_scores.into_iter() {
                 if action_with_score.1.is_none() {
                     break 'outer_loop;
                 }
@@ -116,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_phase() {
-        let mut phase = Phase::new(PhaseEnum::Set, 0);
+        let phase = Phase::new(PhaseEnum::Set, 0);
         println!("p:{}, s:{}", if phase.phase == PhaseEnum::Set { " Set" } else { " Move" }, phase.step_counter);
         println!("p:{}, s:{}", if phase.increased().phase == PhaseEnum::Set { " Set" } else { " Move" }, phase.increased().step_counter);
     }
