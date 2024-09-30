@@ -7,7 +7,6 @@ use std::time::{Duration, Instant};
 use crate::minimax::minimax;
 use rayon::prelude::*;
 
-mod test_list_moves;
 mod action;
 mod minimax;
 mod position;
