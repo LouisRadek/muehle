@@ -4,16 +4,17 @@ use itertools::Itertools;
 use crate::agent::action::forward_step_boards;
 use crate::agent::position::negate_token;
 use crate::agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board};
-use crate::agent::{Phase, PhaseEnum};
+use crate::logic::game_state::Phase;
+use super::AiPhase;
 
-pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: Phase, time: Instant) -> Option<isize> {
+pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant) -> Option<isize> {
     if time.elapsed() > Duration::from_millis(980) {
         return None;
     }
     
     let black_token_count = extract_black_token_count_from_board(board);
     let white_token_count = extract_white_token_count_from_board(board);
-    if phase.phase == PhaseEnum::Move {
+    if phase.phase == Phase::Move {
         if (extract_black_move_count_from_board(board) == 0 && black_token_count > 3) || black_token_count == 2 {
             return Some(isize::MAX - phase.step_counter as isize)
         } else if (extract_white_move_count_from_board(board) == 0 && white_token_count > 3) || white_token_count == 2 {
@@ -70,14 +71,14 @@ pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maxi
     }
 }
 
-fn evaluate_action(positions: u64, phase: Phase) -> isize {
+fn evaluate_action(positions: u64, phase: AiPhase) -> isize {
     let mut score: isize = 0;
     let black_move_count = extract_black_move_count_from_board(positions);
     let white_move_count = extract_white_move_count_from_board(positions);
     let black_token_count = extract_black_token_count_from_board(positions);
     let white_token_count = extract_white_token_count_from_board(positions);
 
-    if phase.phase == PhaseEnum::Move {
+    if phase.phase == Phase::Move {
         if (black_move_count == 0 && black_token_count > 3) || black_token_count == 2 {
             return isize::MAX - phase.step_counter as isize
         } else if (white_move_count == 0 && white_token_count > 3) || white_token_count == 2 {

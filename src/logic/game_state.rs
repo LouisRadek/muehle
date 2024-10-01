@@ -7,7 +7,7 @@ pub enum Token {
     White
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Phase {
     Set,
     Move

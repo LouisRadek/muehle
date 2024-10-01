@@ -1,6 +1,7 @@
 use std::iter;
 
-use crate::agent::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}, Phase, PhaseEnum};
+use crate::{agent::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}}, logic::game_state::Phase};
+use super::AiPhase;
 
 pub struct Action {
     pub start_position: Option<usize>,
@@ -42,7 +43,7 @@ impl ToString for Action {
     }
 }
 
-pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
+pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + 'a {
     list_moves(board, token_type, phase)
         .flat_map(move |applyed_move_board| {
             if is_mill_closing(*board, applyed_move_board, token_type) {
@@ -64,14 +65,14 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: Phase) -> 
     })
 }
 
-pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iterator<Item=u64> + 'a {
+pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + 'a {
     let token_extended: u64 = if token_type == 0b11 {
         0b111111111111111111111111111111111111111111111111
     } else {
         0b101010101010101010101010101010101010101010101010
     };
 
-    if phase.phase == PhaseEnum::Set {
+    if phase.phase == Phase::Set {
         let mut shifted: u64 = 0b11;
 
         return itertools::Either::Left(
@@ -124,14 +125,14 @@ pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase) -> impl Iter
 
 #[cfg(test)]
 mod tests {
-    use crate::agent::{position::{decode_positions, encode_positions, print_board, set_token_at}, utils::get_action_from_board, Phase, PhaseEnum};
+    use crate::agent::{position::{decode_positions, encode_positions, print_board, set_token_at}, utils::get_action_from_board};
 
     use super::*;
 
     #[test]
     fn test_forward_step_boards2() {
         let board = 0b0;
-        let phase = Phase::new(PhaseEnum::Set, 0);
+        let phase = AiPhase::new(Phase::Set, 0);
 
         for forward_step in forward_step_boards(&board, 0b11, phase) {
             for inner_forward_step in forward_step_boards(&forward_step, 0b10, phase) {
@@ -143,7 +144,7 @@ mod tests {
     #[test]
     fn test_speed_of_list_moves() {
         let board = 0b111000000000111000000011000011001100101010101010; // 4.9s, 5.8s, 5.1s, 5.0s, 5.1s, 5.0s
-        let phase = Phase::new(PhaseEnum::Move, 17);
+        let phase = AiPhase::new(Phase::Move, 17);
         
         let now = std::time::Instant::now();
 
@@ -160,7 +161,7 @@ mod tests {
         let board = "WBEEEEWBEEEWEEWEWEBBBBBB".to_string();
         let decoded_board = decode_positions(board);
 
-        for forward_board in forward_step_boards(&decoded_board, 0b10, Phase::new(PhaseEnum::Set, 1)) {
+        for forward_board in forward_step_boards(&decoded_board, 0b10, AiPhase::new(Phase::Set, 1)) {
             println!("forward board: {}", forward_board);
         }
         println!("Time elapsed: {:?}", now.elapsed());
@@ -188,7 +189,7 @@ mod tests {
             expected_boards.push(applyed_move_board);
         }
 
-        for ele in list_moves(&board, 0b11, Phase::new(PhaseEnum::Move, 1)) {
+        for ele in list_moves(&board, 0b11, AiPhase::new(Phase::Move, 1)) {
             assert!(expected_boards.contains(&ele));
         }
     }
@@ -199,7 +200,7 @@ mod tests {
         print_board(board);
         println!("{}", encode_positions(board));
 
-        for forward_board in forward_step_boards(&board, 0b11, Phase::new(PhaseEnum::Set, 18)) {
+        for forward_board in forward_step_boards(&board, 0b11, AiPhase::new(Phase::Set, 18)) {
             let action = get_action_from_board(board, forward_board, 0b11);
             println!("{}, move: start_{}, end_{}, beat_{}, --- {}", encode_positions(forward_board), action.start_position.unwrap_or(30), action.end_position, action.beatable_position.unwrap_or(30), action.to_string());
         }

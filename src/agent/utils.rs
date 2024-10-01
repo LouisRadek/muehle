@@ -94,14 +94,15 @@ pub const NEIGHBORS: [[usize; 4]; 24] = [
     [16, 22, 24, 24],
 ];
 
-use crate::agent::{action::Action, position::{get_token_at, negate_token, BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION}, Phase, PhaseEnum};
+use crate::{agent::{action::Action, position::{get_token_at, negate_token, BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION}}, logic::game_state::Phase};
+use super::AiPhase;
 
 #[allow(dead_code)]
-pub fn get_winner(board: u64, phase: Phase) -> u8 {
+pub fn get_winner(board: u64, phase: AiPhase) -> u8 {
     let (black_tokens, white_tokens) = (get_number_of_tokens(board, 0b10), get_number_of_tokens(board, 0b11));
-    if phase.phase == PhaseEnum::Move && white_tokens < 3 {
+    if phase.phase == Phase::Move && white_tokens < 3 {
         return 0b10
-    } else if phase.phase == PhaseEnum::Move && black_tokens < 3 {
+    } else if phase.phase == Phase::Move && black_tokens < 3 {
         return 0b11
     } else { 
         return 0b00 
@@ -335,19 +336,19 @@ pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_
 
 #[cfg(test)]
 mod tests {
-    use crate::{agent::{position::set_token_at, utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_number_of_tokens, get_possible_move_count, get_winner, insert_number_of_possible_moves_to_board, insert_token_count_to_board, is_beat_possible, is_mill_closing, is_move_valid, is_neighbor, is_part_of_mill}, Phase, PhaseEnum}, logic::position::{decode_positions, reverse_token_of_board}};
+    use crate::{agent::{position::set_token_at, utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_number_of_tokens, get_possible_move_count, get_winner, insert_number_of_possible_moves_to_board, insert_token_count_to_board, is_beat_possible, is_mill_closing, is_move_valid, is_neighbor, is_part_of_mill}, AiPhase}, logic::{game_state::Phase, position::{decode_positions, reverse_token_of_board}}};
 
     #[test]
     fn test_get_winner() {
         let board1 = 0b111100000000000000000000000000000000000000101010;
         let board2 =  0b111111101010101111000010001111110000001000100000;
         
-        assert_eq!(0b10, get_winner(board1, Phase::new(PhaseEnum::Move, 1)));
-        assert_eq!(0b00, get_winner(board1, Phase::new(PhaseEnum::Set, 3)));
-        assert_eq!(0b00, get_winner(board2, Phase::new(PhaseEnum::Move, 1)));
-        assert_eq!(0b10, get_winner(board1, Phase::new(PhaseEnum::Move, 1)));
-        assert_eq!(0b00, get_winner(board1, Phase::new(PhaseEnum::Set, 3)));
-        assert_eq!(0b00, get_winner(board2, Phase::new(PhaseEnum::Move, 1)));
+        assert_eq!(0b10, get_winner(board1, AiPhase::new(Phase::Move, 1)));
+        assert_eq!(0b00, get_winner(board1, AiPhase::new(Phase::Set, 3)));
+        assert_eq!(0b00, get_winner(board2, AiPhase::new(Phase::Move, 1)));
+        assert_eq!(0b10, get_winner(board1, AiPhase::new(Phase::Move, 1)));
+        assert_eq!(0b00, get_winner(board1, AiPhase::new(Phase::Set, 3)));
+        assert_eq!(0b00, get_winner(board2, AiPhase::new(Phase::Move, 1)));
     }
 
     #[test]
