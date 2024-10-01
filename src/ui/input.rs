@@ -130,19 +130,21 @@ impl InputHandler {
         
         for position in 0..24 {
             if self.can_click(position) {
-                if self.state == InputHandlerState::PlaceDest {
-                    let outline_draw_params = get_token_draw_params(ctx, position, resources.clone());
-                    canvas.draw(&resources.empty_token_outline, outline_draw_params)
-                }
-                
-                if self.state == InputHandlerState::Source {
-                    let outline_draw_params = get_token_draw_params(ctx, position, resources.clone());
-                    canvas.draw(&resources.token_green_outline, outline_draw_params)
-                }
-                
-                if self.state == InputHandlerState::Take {
-                    let outline_draw_params = get_token_draw_params(ctx, position, resources.clone());
-                    canvas.draw(&resources.token_red_outline, outline_draw_params)
+                let outline_draw_params = get_token_draw_params(ctx, position, resources.clone());
+                match self.state {
+                    InputHandlerState::PlaceDest => {
+                        canvas.draw(&resources.empty_token_outline, outline_draw_params) 
+                    },
+                    InputHandlerState::Source => {
+                        canvas.draw(&resources.token_green_outline, outline_draw_params)
+                    },
+                    InputHandlerState::Dest => {
+                        canvas.draw(&resources.empty_token_outline, outline_draw_params)
+                    },
+                    InputHandlerState::Take => {
+                        canvas.draw(&resources.token_red_outline, outline_draw_params)
+                    },
+                    InputHandlerState::Done => {}
                 }
             }
         }
