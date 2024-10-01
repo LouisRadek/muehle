@@ -1,5 +1,5 @@
 use ggez::{conf::{WindowMode, WindowSetup}, event, ContextBuilder};
-use ui::ui::MuehleUi;
+use ui::MuehleUi;
 
 mod agent;
 mod logic;

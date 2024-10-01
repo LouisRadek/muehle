@@ -3,7 +3,7 @@ use ggez::graphics::Canvas;
 use crate::logic::action::{list_actions, Action};
 use crate::logic::game_state::{GameState, Phase, Token};
 use crate::logic::position::get_token_at;
-use super::ui::{get_token_draw_params, GameResources};
+use super::{get_token_draw_params, GameResources};
 
 
 pub struct InputHandler {
