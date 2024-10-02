@@ -2,9 +2,9 @@ use std::time::{Duration, Instant};
 use itertools::Itertools;
 
 use crate::agent::action::forward_step_boards;
-use crate::agent::position::negate_token;
 use crate::agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board};
 use crate::logic::game_state::Phase;
+use crate::logic::position::negate_token;
 use super::AiPhase;
 
 pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant) -> Option<isize> {
