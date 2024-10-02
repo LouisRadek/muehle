@@ -50,7 +50,9 @@ impl InputHandler {
     }
 
     pub fn can_click(&self, position: usize) -> bool {
-        let token_at_position = get_token_at(self.game_state.get_board(), position);
+        let token_at_position = Token::parse_to_token(
+            get_token_at(self.game_state.get_board(), position)
+        );
         match self.state {
             InputHandlerState::PlaceDest => {
                 token_at_position == Token::None

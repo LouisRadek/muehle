@@ -1,7 +1,7 @@
 use std::iter;
 
-use crate::{agent::{position::{create_token_iter, encode_single_position, negate_token, set_token_at, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, is_beat_possible, is_mill_closing, is_move_valid, update_possible_move_count}}, logic::game_state::Phase};
-use super::AiPhase;
+use crate::{agent::utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, update_possible_move_count}, logic::{game_state::Phase, mill_detection::is_mill_closing, r#move::{is_beat_possible, is_move_valid}, position::{create_token_iter, negate_token, set_token_at}}};
+use super::{utils::{BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, AiPhase};
 
 pub struct Action {
     pub start_position: Option<usize>,
@@ -12,34 +12,6 @@ pub struct Action {
 impl Action {
     pub fn new(start_position: Option<usize>, end_position: usize, beatable_position: Option<usize>) -> Self {
         Action { start_position, end_position, beatable_position }
-    }
-}
-
-impl ToString for Action {
-    fn to_string(&self) -> String {
-        let mut encoded_string = String::new();
-        if self.start_position.is_none() {
-            encoded_string.push('P');
-            encoded_string.push(' ');
-            
-            encoded_string.push_str(encode_single_position(self.end_position).as_str());
-        } else {
-            encoded_string.push('M');
-            encoded_string.push(' ');
-            
-            encoded_string.push_str(encode_single_position(self.start_position.unwrap()).as_str());
-            encoded_string.push(' ');
-            encoded_string.push_str(encode_single_position(self.end_position).as_str());
-        };
-        
-        if self.beatable_position.is_some() {
-            encoded_string.push(' ');
-            encoded_string.push('T');
-            encoded_string.push(' ');
-            encoded_string.push_str(encode_single_position(self.beatable_position.unwrap()).as_str());
-        }
-        
-        return encoded_string;
     }
 }
 
@@ -125,7 +97,7 @@ pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl It
 
 #[cfg(test)]
 mod tests {
-    use crate::agent::{position::{decode_positions, encode_positions, print_board, set_token_at}, utils::get_action_from_board};
+    use crate::logic::position::decode_positions;
 
     use super::*;
 
@@ -191,18 +163,6 @@ mod tests {
 
         for ele in list_moves(&board, 0b11, AiPhase::new(Phase::Move, 1)) {
             assert!(expected_boards.contains(&ele));
-        }
-    }
-
-    #[test]
-    fn test_forward_step_boards() {
-        let board = decode_positions("EEEEEEEEEEEEEEEEEWBWEBBW".to_string());
-        print_board(board);
-        println!("{}", encode_positions(board));
-
-        for forward_board in forward_step_boards(&board, 0b11, AiPhase::new(Phase::Set, 18)) {
-            let action = get_action_from_board(board, forward_board, 0b11);
-            println!("{}, move: start_{}, end_{}, beat_{}, --- {}", encode_positions(forward_board), action.start_position.unwrap_or(30), action.end_position, action.beatable_position.unwrap_or(30), action.to_string());
         }
     }
 }

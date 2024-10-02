@@ -66,7 +66,7 @@ pub fn apply_action(board: &u64, action: &Action, token_type: u8) -> u64 {
 pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -> bool {
     let token_of_opponent: u8 = negate_token(token_current_player);
     
-    if get_token_at(board, position) != Token::parse_to_token(token_of_opponent) {
+    if get_token_at(board, position) != token_of_opponent {
         return false
     }
     

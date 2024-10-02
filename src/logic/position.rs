@@ -1,7 +1,5 @@
-use crate::logic::game_state::Token;
-
-pub fn get_token_at(board: u64, position: usize) -> Token {
-    Token::parse_to_token(((board >> (46 - position * 2)) & 0b11) as u8)
+pub fn get_token_at(board: u64, position: usize) -> u8 {
+    ((board >> (46 - position * 2)) & 0b11) as u8
 }
 
 pub fn set_token_at(board: u64, position: usize, token: u8) -> u64 {
@@ -91,37 +89,36 @@ pub fn encode_positions(board: u64) -> String {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::logic::{game_state::Token, position::{decode_positions, encode_positions, get_number_of_tokens, get_token_at, negate_token, reverse_token_of_board}};
+    use crate::logic::position::{decode_positions, encode_positions, get_number_of_tokens, get_token_at, negate_token, reverse_token_of_board};
     use super::create_token_iter;
 
-    #[test]
     fn test_get_token_at() {
         let board1: u64 = 0b101000000011110011101110110010110011101100100010; // BBEEEWWE WBWBWEBW EWBWEBEB
 
-        assert_eq!(Token::Black, get_token_at(board1, 0));
-        assert_eq!(Token::Black, get_token_at(board1, 1));
-        assert_eq!(Token::None, get_token_at(board1, 2));
-        assert_eq!(Token::None, get_token_at(board1, 3));
-        assert_eq!(Token::None, get_token_at(board1, 4));
-        assert_eq!(Token::White, get_token_at(board1, 5));
-        assert_eq!(Token::White, get_token_at(board1, 6));
-        assert_eq!(Token::None, get_token_at(board1, 7));
-        assert_eq!(Token::White, get_token_at(board1, 8));
-        assert_eq!(Token::Black, get_token_at(board1, 9));
-        assert_eq!(Token::White, get_token_at(board1, 10));
-        assert_eq!(Token::Black, get_token_at(board1, 11));
-        assert_eq!(Token::White, get_token_at(board1, 12));
-        assert_eq!(Token::None, get_token_at(board1, 13));
-        assert_eq!(Token::Black, get_token_at(board1, 14));
-        assert_eq!(Token::White, get_token_at(board1, 15));
-        assert_eq!(Token::None, get_token_at(board1, 16));
-        assert_eq!(Token::White, get_token_at(board1, 17));
-        assert_eq!(Token::Black, get_token_at(board1, 18));
-        assert_eq!(Token::White, get_token_at(board1, 19));
-        assert_eq!(Token::None, get_token_at(board1, 20));
-        assert_eq!(Token::Black, get_token_at(board1, 21));
-        assert_eq!(Token::None, get_token_at(board1, 22));
-        assert_eq!(Token::Black, get_token_at(board1, 23));
+        assert_eq!(0b10, get_token_at(board1, 0));
+        assert_eq!(0b10, get_token_at(board1, 1));
+        assert_eq!(0b00, get_token_at(board1, 2));
+        assert_eq!(0b00, get_token_at(board1, 3));
+        assert_eq!(0b00, get_token_at(board1, 4));
+        assert_eq!(0b11, get_token_at(board1, 5));
+        assert_eq!(0b11, get_token_at(board1, 6));
+        assert_eq!(0b00, get_token_at(board1, 7));
+        assert_eq!(0b11, get_token_at(board1, 8));
+        assert_eq!(0b10, get_token_at(board1, 9));
+        assert_eq!(0b11, get_token_at(board1, 10));
+        assert_eq!(0b10, get_token_at(board1, 11));
+        assert_eq!(0b11, get_token_at(board1, 12));
+        assert_eq!(0b00, get_token_at(board1, 13));
+        assert_eq!(0b10, get_token_at(board1, 14));
+        assert_eq!(0b11, get_token_at(board1, 15));
+        assert_eq!(0b00, get_token_at(board1, 16));
+        assert_eq!(0b11, get_token_at(board1, 17));
+        assert_eq!(0b10, get_token_at(board1, 18));
+        assert_eq!(0b11, get_token_at(board1, 19));
+        assert_eq!(0b00, get_token_at(board1, 20));
+        assert_eq!(0b10, get_token_at(board1, 21));
+        assert_eq!(0b00, get_token_at(board1, 22));
+        assert_eq!(0b10, get_token_at(board1, 23));
     }
 
     #[test]
