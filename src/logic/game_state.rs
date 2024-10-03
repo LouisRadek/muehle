@@ -39,14 +39,6 @@ impl Token {
             Token::None => 0b00
         }
     }
-
-    pub fn negate(&mut self) -> Token {
-        match self {
-            Token::Black => Token::White,
-            Token::White => Token::Black,
-            Token::None => Token::None
-        }
-    }
 }
 
 /*
@@ -105,10 +97,6 @@ impl GameState {
 
     pub fn get_token_set_at_beginning(&self) -> u8 {
         self.token_set_at_beginning
-    }
-
-    pub fn set_token_set_at_beginning(&mut self, new_value: u8) {
-        self.token_set_at_beginning = new_value
     }
 
     pub fn decrement_token_set_at_beginning(&mut self) {
@@ -183,7 +171,7 @@ mod tests {
     #[test]
     fn test_set_token_set_at_beginning() {
         let mut game = GameState::default();
-        game.set_token_set_at_beginning(5);
+        game.token_set_at_beginning = 5;
         assert_eq!(game.token_set_at_beginning, 5);
     }
 
@@ -191,7 +179,7 @@ mod tests {
     fn test_get_phase() {
         let mut game = GameState::default();
         assert_eq!(game.get_phase(), Phase::Set);
-        game.set_token_set_at_beginning(0);
+        game.token_set_at_beginning = 0;
         assert_eq!(game.get_phase(), Phase::Move);
     }
 }

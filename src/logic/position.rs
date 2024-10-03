@@ -58,6 +58,7 @@ pub fn print_board(board: u64) {
     println!("{}------------{}------------{}   ", board_vec[5], board_vec[4], board_vec[3]);
 }
 
+#[allow(dead_code)]
 pub fn decode_positions(encoded_positions: String) -> u64 {
     let mut decoded_positions: u64 = 0b0;
 
@@ -75,6 +76,7 @@ pub fn decode_positions(encoded_positions: String) -> u64 {
     return decoded_positions
 }
 
+#[allow(dead_code)]
 pub fn encode_positions(board: u64) -> String {
     let mut encoded_positions = String::new();
     for index in 0..24 {
@@ -92,6 +94,7 @@ pub mod tests {
     use crate::logic::position::{decode_positions, encode_positions, get_number_of_tokens, get_token_at, negate_token, reverse_token_of_board};
     use super::create_token_iter;
 
+    #[test]
     fn test_get_token_at() {
         let board1: u64 = 0b101000000011110011101110110010110011101100100010; // BBEEEWWE WBWBWEBW EWBWEBEB
 
