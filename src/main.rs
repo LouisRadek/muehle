@@ -18,7 +18,8 @@ fn main() {
             .vsync(true))
         .build()
         .expect("Could not create ggez context!");
-    let ui = MuehleUi::new(&mut ctx);
+    
+    let ui = MuehleUi::new(&mut ctx, None);
 
     event::run(ctx, event_loop, ui);
 }

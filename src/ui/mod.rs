@@ -1,6 +1,6 @@
 use std::{borrow::BorrowMut, collections::HashMap, ops::Deref};
 use ggez::{event::{EventHandler, MouseButton}, graphics::{self, Color, DrawParam, Image, Text}, Context, GameError, GameResult};
-use crate::logic::{action::{list_actions, Action}, game_state::{GameState, Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}};
+use crate::{agent::{calculate_next_move, AiPhase}, logic::{action::{list_actions, Action}, game_state::{GameState, Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}}};
 use crate::ui::input::InputHandler;
 
 pub mod input;
@@ -102,17 +102,19 @@ pub struct MuehleUi {
     game_state: GameState,
     input: Option<InputHandler>,
     winner: Option<Winner>,
-    repetition: HashMap<(u64, Token), u8>
+    repetition: HashMap<(u64, Token), u8>,
+    ai: Option<Token>
 }
 
 impl MuehleUi {
-    pub fn new(ctx: &mut Context) -> MuehleUi {
+    pub fn new(ctx: &mut Context, ai: Option<Token>) -> MuehleUi {
         MuehleUi {
             resources: GameResources::new(ctx),
             game_state: GameState::default(),
             input: None,
             winner: None,
-            repetition: HashMap::new()
+            repetition: HashMap::new(),
+            ai
         }
     }
 
@@ -150,9 +152,28 @@ impl EventHandler for MuehleUi {
             return Ok(());
         }
 
-        // integration of ai should be here
+        let player_turn = self.game_state.get_player_turn();
+        if self.ai.is_some() && player_turn == self.ai.unwrap() {
+            let board = self.game_state.get_board();
+            let ai_phase = AiPhase::new(self.game_state.get_phase(), self.game_state.get_step_counter());
+            let action = calculate_next_move(board, player_turn, ai_phase);
+            let possible_actions = list_actions(
+                &board, 
+                Token::parse_to_u8(player_turn), 
+                self.game_state.get_phase(), 
+                None
+            ).collect::<Vec<Action>>();
 
-        if let Some(input) = self.input.as_ref() {
+            if possible_actions.contains(&action) {
+                self.apply_action(action);
+            } else {
+                self.winner = Some(match player_turn {
+                    Token::White => Winner::Black("White attempted illegal move".to_string()),
+                    Token::Black => Winner::White("Black attempted illegal move".to_string()),
+                    _ => unreachable!()
+                });
+            }
+        } else if let Some(input) = self.input.as_ref() {
             if let Some(action) = input.get_action() {
                 self.apply_action(action);
                 self.input = None;
