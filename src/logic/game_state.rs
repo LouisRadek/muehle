@@ -61,7 +61,7 @@ impl Token {
 pub struct GameState {
     board: u64,
     player_turn: Token,
-    token_set_at_beginning: u8
+    step_counter: u8
 }
 
 impl Default for GameState {
@@ -69,7 +69,7 @@ impl Default for GameState {
         GameState {
             board: 0b0,
             player_turn: Token::White,
-            token_set_at_beginning: 18
+            step_counter: 0
         }
     }
 }
@@ -95,18 +95,16 @@ impl GameState {
         }
     }
 
-    pub fn get_token_set_at_beginning(&self) -> u8 {
-        self.token_set_at_beginning
+    pub fn get_step_counter(&self) -> u8 {
+        self.step_counter
     }
 
-    pub fn decrement_token_set_at_beginning(&mut self) {
-        if self.token_set_at_beginning > 0 {
-            self.token_set_at_beginning -= 1;
-        }
+    pub fn increase_step_counter(&mut self) {
+        self.step_counter += 1;
     }
 
     pub fn get_phase(&self) -> Phase {
-        if self.get_token_set_at_beginning() > 0 {
+        if self.step_counter < 18 {
             return Phase::Set
         } else {
             return Phase::Move
@@ -124,7 +122,7 @@ mod tests {
 
         assert_eq!(game.board, 0b0);
         assert_eq!(game.player_turn, Token::White);
-        assert_eq!(game.token_set_at_beginning, 18)
+        assert_eq!(game.step_counter, 0)
     }
 
     #[test]
@@ -163,23 +161,24 @@ mod tests {
     }
 
     #[test]
-    fn test_get_token_set_at_beginning() {
+    fn test_get_step_counter() {
         let game = GameState::default();
-        assert_eq!(game.token_set_at_beginning, 18);
+        assert_eq!(game.get_step_counter(), 0);
     }
 
     #[test]
-    fn test_set_token_set_at_beginning() {
+    fn test_increase_step_counter() {
         let mut game = GameState::default();
-        game.token_set_at_beginning = 5;
-        assert_eq!(game.token_set_at_beginning, 5);
+        let step_counter_before = game.get_step_counter();
+        game.increase_step_counter();
+        assert_eq!(game.get_step_counter(), step_counter_before + 1);
     }
 
     #[test]
     fn test_get_phase() {
         let mut game = GameState::default();
         assert_eq!(game.get_phase(), Phase::Set);
-        game.token_set_at_beginning = 0;
+        game.step_counter = 18;
         assert_eq!(game.get_phase(), Phase::Move);
     }
 }

@@ -121,13 +121,13 @@ impl MuehleUi {
         let successor = apply_action(&game_state.get_board(), &action, Token::parse_to_u8(game_state.get_player_turn()));
         game_state.set_board(successor);
         game_state.change_player();
-        game_state.decrement_token_set_at_beginning();
+        game_state.increase_step_counter();
 
 
         if game_state.get_phase() == Phase::Move {
             let parsed_player_token = Token::parse_to_u8(game_state.get_player_turn());
             if get_number_of_tokens(game_state.get_board(), parsed_player_token) == 2 
-                || list_actions(&game_state.get_board(), parsed_player_token, game_state.get_phase()).count() == 0 {
+                || list_actions(&game_state.get_board(), parsed_player_token, game_state.get_phase(), None).count() == 0 {
                 self.winner = Some(match game_state.get_player_turn() {
                     Token::White => Winner::Black("".to_string()),
                     Token::Black => Winner::White("".to_string()),
