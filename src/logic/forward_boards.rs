@@ -1,4 +1,5 @@
-use crate::agent::{utils::{extract_black_token_count_from_board, extract_white_token_count_from_board, update_possible_move_count, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, AiPhase};
+use crate::agent::AiPhase;
+use super::move_token_count::{extract_black_token_count_from_board, extract_white_token_count_from_board, update_possible_move_count, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION};
 use super::{action::list_actions, game_state::Phase, position::{negate_token, set_token_at}};
 
 pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + 'a {
@@ -42,8 +43,7 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -
 
 #[cfg(test)]
 mod tests {
-    use crate::{agent::{utils::{BLACK_POSSIBLE_MOVES_FIRST_POSITION, BLACK_TOKEN_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, AiPhase}, logic::{game_state::{Phase, Token}, position::decode_positions}};
-
+    use crate::{agent::AiPhase, logic::{game_state::{Phase, Token}, move_token_count::{BLACK_POSSIBLE_MOVES_FIRST_POSITION, BLACK_TOKEN_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION}, position::decode_positions}};
     use super::forward_step_boards;
 
     /*

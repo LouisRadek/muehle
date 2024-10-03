@@ -5,7 +5,6 @@ use utils::{insert_number_of_possible_moves_to_board, insert_token_count_to_boar
 use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, position::negate_token};
 
 pub mod minimax;
-pub mod utils;
 
 #[derive(Clone, Copy)]
 pub struct AiPhase {

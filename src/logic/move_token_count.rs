@@ -114,7 +114,7 @@ pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, r
 
 #[cfg(test)]
 mod tests {
-    use crate::{agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, update_possible_move_count}, logic::position::{decode_positions, set_token_at}};
+    use crate::{logic::move_token_count::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, update_possible_move_count}, logic::position::{decode_positions, set_token_at}};
     use super::{BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION};
 
     #[test]
