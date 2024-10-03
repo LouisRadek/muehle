@@ -1,3 +1,4 @@
+use core::panic;
 use crate::logic::{action::Action, r#move::NEIGHBORS, position::{get_number_of_tokens, get_token_at}};
 
 /*
@@ -7,6 +8,14 @@ use crate::logic::{action::Action, r#move::NEIGHBORS, position::{get_number_of_t
         3 bits with number of white tokens
         3 bits with number of black tokens
         48 bits with the board itself
+    
+    Furthermore, the counter of the tokens is offsetted to
+    fit the 3 bits. Because a player can have max. 9 Tokens
+    you ignore the 0 and 1 tokens and start counting from 2.
+    000 -> 2
+    001 -> 3
+    ...
+    111 -> 9
 */
 pub const WHITE_TOKEN_FIRST_POSITION: u64 =          0b0000000000001000000000000000000000000000000000000000000000000000;
 pub const BLACK_TOKEN_FIRST_POSITION: u64 =          0b0000000000000001000000000000000000000000000000000000000000000000;
@@ -16,9 +25,9 @@ pub const BLACK_POSSIBLE_MOVES_FIRST_POSITION: u64 = 0b0000000001000000000000000
 pub fn insert_token_count_to_board(board: u64) -> u64 {
     let white_token_count: u64 = match get_number_of_tokens(board, 0b11)
     {
-        0 => 0, // 0 -> 000
-        1 => 0, // 1 -> 000
-        val => val as u64 - 2 // 000 -> 2; 001 -> 3; ...; 110 - 8; 111 - 9
+        0 => 0,
+        1 => 0,
+        val => val as u64 - 2
     };
     let black_token_count: u64 = match get_number_of_tokens(board, 0b10)
     {
@@ -71,74 +80,38 @@ pub fn get_possible_move_count(board: u64, token_type: u8) -> usize {
     return count
 }
 
-// we add white token to board at position "position":
-//  neighbor is empty => add possible move to white
-//  neighbor is white => remove possible move from white
-//  neighbor is black => remove possible move from black
-// 
-// we add white token to board at position "position":
-//  neighbor is empty => add possible move to black
-//  neighbor is white => remove possible move from white
-//  neighbor is black => remove possible move from black
-//
-// we remove token at postion "position"
-//  neighbor is empty => remove specific to token type of position
-//  neighbor is white => add possible move from white
-//  neighbor is black => add possible move from black
-pub fn update_possible_move_count(mut board: u64, token_type: u8, position: usize, remove: bool) -> u64 {
-    if remove {
-        NEIGHBORS[position].iter()
-            .for_each(|neighbor| {
-                if *neighbor == 24 {
-                    ()
-                }
-                match get_token_at(board, *neighbor) {
-                    0b00 => if token_type == 0b11 {
-                            board -= WHITE_POSSIBLE_MOVES_FIRST_POSITION
-                        } else {
-                            board -= BLACK_POSSIBLE_MOVES_FIRST_POSITION
-                        },
-                    0b11 => board += WHITE_POSSIBLE_MOVES_FIRST_POSITION,
-                    0b10 => board += BLACK_POSSIBLE_MOVES_FIRST_POSITION,
-                    _ => ()
-                }
-        });
-    } else {
-        NEIGHBORS[position].iter()
-            .for_each(|neighbor| {
-                if *neighbor == 24 {
-                    ()
-                }
-                match get_token_at(board, *neighbor) {
-                    0b00 => if token_type == 0b11 && !remove {
-                            board += WHITE_POSSIBLE_MOVES_FIRST_POSITION
-                        } else {
-                            board += BLACK_POSSIBLE_MOVES_FIRST_POSITION
-                        },
-                    0b11 => board -= WHITE_POSSIBLE_MOVES_FIRST_POSITION,
-                    0b10 => board -= BLACK_POSSIBLE_MOVES_FIRST_POSITION,
-                    _ => ()
-                }
-        });
+pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, remove: bool) -> u64 {
+    let mut new_board = board.clone();
+
+    let token_at_position = get_token_at(new_board, position);
+    if token_type == 0b00 || (token_at_position != 0b00 && remove) 
+        || (token_at_position == 0b00 && !remove) 
+        || (token_at_position != token_type && !remove) {
+        panic!("Invalid token type or position")
     }
-    return board
+
+    NEIGHBORS[position].iter()
+        .for_each(|neighbor| {
+            if *neighbor == 24 {
+                return ()
+            }
+
+            match get_token_at(new_board, *neighbor) {
+                0b00 if remove && token_type == 0b11 => new_board -= WHITE_POSSIBLE_MOVES_FIRST_POSITION,
+                0b00 if remove && token_type == 0b10 => new_board -= BLACK_POSSIBLE_MOVES_FIRST_POSITION,
+                0b00 if !remove && token_type == 0b11 => new_board += WHITE_POSSIBLE_MOVES_FIRST_POSITION,
+                0b00 if !remove && token_type == 0b10 => new_board += BLACK_POSSIBLE_MOVES_FIRST_POSITION,
+                0b11 if remove => new_board += WHITE_POSSIBLE_MOVES_FIRST_POSITION,
+                0b11 if !remove => new_board -= WHITE_POSSIBLE_MOVES_FIRST_POSITION,
+                0b10 if remove => new_board += BLACK_POSSIBLE_MOVES_FIRST_POSITION,
+                0b10 if !remove => new_board -= BLACK_POSSIBLE_MOVES_FIRST_POSITION,
+                _ => ()
+            }
+    });
+
+    return new_board
 }
 
-/*
-    Cases for the board:
-    1. outer if:
-        E E - don't care
-        B B - don't care
-        W W - don't care
-    2. inner if
-        E W - end_position
-        W E - start_position
-        B E - beatable_position
-    3. not accepted
-        E B - not possible
-        B W - not possible
-        W B - not possible
-*/
 pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_type: u8) -> Action {
     let mut start_position = None;
     let mut end_position = 0;
@@ -163,7 +136,8 @@ pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_
 
 #[cfg(test)]
 mod tests {
-    use crate::agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board};
+    use crate::{agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_action_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, update_possible_move_count}, logic::{action::Action, position::{decode_positions, set_token_at}}};
+    use super::{BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION};
 
     #[test]
     fn test_insert_token_count_to_board() {
@@ -247,5 +221,106 @@ mod tests {
         assert_eq!(inserted_possible_move_black2, extract_black_move_count_from_board(move_and_token_count_board2));
         assert_eq!(inserted_token_count_white2, extract_white_token_count_from_board(move_and_token_count_board2) - 2);
         assert_eq!(inserted_token_count_black2, extract_black_token_count_from_board(move_and_token_count_board2) - 2);
+    }
+
+    #[test]
+    fn test_get_possible_move_count() {
+        let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board2 = decode_positions("BWEEEWBBWBBWWBBWEEEEEEWE".to_string());
+        let board3 = decode_positions("EEEEEEEEEEEEEEEEEEEEEEEE".to_string());
+
+        assert_eq!(get_possible_move_count(board, 0b11), 8);
+        assert_eq!(get_possible_move_count(board, 0b10), 2);
+        assert_eq!(get_possible_move_count(board2, 0b11), 7);
+        assert_eq!(get_possible_move_count(board2, 0b10), 2);
+        assert_eq!(get_possible_move_count(board3, 0b11), 0);
+        assert_eq!(get_possible_move_count(board3, 0b10), 0);
+    }
+
+    #[test]
+    fn test_update_possible_move_count() {
+        let board = 
+            decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string())
+            + 2 * BLACK_POSSIBLE_MOVES_FIRST_POSITION
+            + 8 * WHITE_POSSIBLE_MOVES_FIRST_POSITION;
+        
+        let mut new_board = set_token_at(board, 18, 0b11);
+        assert_eq!(update_possible_move_count(new_board, 0b11, 18, false), new_board + 3 * WHITE_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 18, 0b10);
+        assert_eq!(update_possible_move_count(new_board, 0b10, 18, false), new_board + 3 * BLACK_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 12, 0b10);
+        assert_eq!(update_possible_move_count(new_board, 0b10, 12, false), new_board + 2 * BLACK_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 15, 0b11);
+        assert_eq!(update_possible_move_count(new_board, 0b11, 15, false), new_board - 2 * WHITE_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 15, 0b10);
+        assert_eq!(update_possible_move_count(new_board, 0b10, 15, false), new_board - 2 * WHITE_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 10, 0b10);
+        assert_eq!(update_possible_move_count(new_board, 0b10, 10, false), 
+            new_board 
+            + 3 * BLACK_POSSIBLE_MOVES_FIRST_POSITION
+            - WHITE_POSSIBLE_MOVES_FIRST_POSITION
+        );
+        new_board = set_token_at(board, 8, 0b00);
+        assert_eq!(update_possible_move_count(new_board, 0b11, 8, true), new_board + 2 * WHITE_POSSIBLE_MOVES_FIRST_POSITION);
+        new_board = set_token_at(board, 14, 0b00);
+        assert_eq!(update_possible_move_count(new_board, 0b11, 14, true), 
+            new_board
+            - 3 * WHITE_POSSIBLE_MOVES_FIRST_POSITION
+            + BLACK_POSSIBLE_MOVES_FIRST_POSITION
+        );
+        new_board = set_token_at(board, 6, 0b00);
+        assert_eq!(update_possible_move_count(new_board, 0b10, 6, true), 
+            new_board
+            + 2 * BLACK_POSSIBLE_MOVES_FIRST_POSITION
+            + WHITE_POSSIBLE_MOVES_FIRST_POSITION
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_update_possible_move_count2() {
+        let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+
+        assert_eq!(update_possible_move_count(board, 0b00, 18, false), board);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_update_possible_move_count3() {
+        let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+
+        assert_eq!(update_possible_move_count(board, 0b11, 18, false), board);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_update_possible_move_count4() {
+        let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+
+        assert_eq!(update_possible_move_count(board, 0b10, 7, true), board);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_update_possible_move_count5() {
+        let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+
+        assert_eq!(update_possible_move_count(board, 0b10, 8, false), board);
+    }
+
+    #[test]
+    fn test_get_action_from_board() {
+        let board_before = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after1 = decode_positions("EWEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after2 = decode_positions("WWEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after3 = decode_positions("WEEBEBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after4 = decode_positions("WEEEEBBBWWEEEEEWWEEEEEEE".to_string());
+        let board_after5 = decode_positions("WEEWBBBBWWEEEEWEEEEEEEEE".to_string());
+
+        assert_eq!(get_action_from_board(board_before, board_after1, 0b11), Action::new(Some(0), 1, None));
+        assert_eq!(get_action_from_board(board_before, board_after2, 0b11), Action::new(None, 1, None));
+        assert_eq!(get_action_from_board(board_before, board_after3, 0b10), Action::new(Some(4), 3, None));
+        assert_eq!(get_action_from_board(board_before, board_after4, 0b11), Action::new(Some(14), 15, Some(4)));
+        assert_eq!(get_action_from_board(board_before, board_after5, 0b11), Action::new(Some(16), 3, None));
     }
 }

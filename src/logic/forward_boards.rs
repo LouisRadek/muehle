@@ -23,8 +23,8 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -
             new_board = set_token_at(new_board, action.start_position.unwrap(), 0b00);
             new_board = update_possible_move_count(new_board, token_type, action.start_position.unwrap(), true)
         }
-        new_board = update_possible_move_count(new_board, token_type, action.end_position, false);
         new_board = set_token_at(new_board, action.end_position, token_type);
+        new_board = update_possible_move_count(new_board, token_type, action.end_position, false);
 
         if action.beatable_position.is_some() {
             new_board = set_token_at(new_board, action.beatable_position.unwrap(), 0b00);
