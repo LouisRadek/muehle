@@ -1,8 +1,8 @@
 use std::time::{Duration, Instant};
 use minimax::minimax;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use utils::{get_action_from_board, insert_number_of_possible_moves_to_board, insert_token_count_to_board};
-use crate::logic::{action::Action, forward_boards::forward_step_boards, game_state::{Phase, Token}, position::negate_token};
+use utils::{insert_number_of_possible_moves_to_board, insert_token_count_to_board};
+use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, position::negate_token};
 
 pub mod minimax;
 pub mod utils;

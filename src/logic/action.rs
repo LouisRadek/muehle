@@ -86,9 +86,31 @@ fn list_moves_set_phase(board: u64) -> impl Iterator<Item=Move> {
         })
 }
 
+pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_type: u8) -> Action {
+    let mut start_position = None;
+    let mut end_position = 0;
+    let mut beatable_position = None;
+
+    (0..24).rev().for_each( |index| {
+        if board_before & 0b11 != board_after & 0b11 {
+            if board_before & 0b11 == 0b00 {
+                end_position = index as usize;
+            } else if (board_before & 0b11) as u8 == token_type {
+                start_position = Some(index as usize);
+            } else {
+                beatable_position = Some(index as usize);
+            }
+        }
+        board_before >>= 2;
+        board_after >>= 2;
+    });
+
+    return Action::new(start_position, end_position, beatable_position)
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::logic::{game_state::{Phase, Token}, position::decode_positions};
+    use crate::logic::{action::get_action_from_board, game_state::{Phase, Token}, position::decode_positions};
     use super::{list_actions, list_moves, list_moves_move_phase, list_moves_set_phase, Action, Move};
 
     #[test]
@@ -204,5 +226,21 @@ mod tests {
         for r#move in list_moves_set_phase(board) {
             assert!(expected_moves.contains(&r#move));
         }
+    }
+
+    #[test]
+    fn test_get_action_from_board() {
+        let board_before = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after1 = decode_positions("EWEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after2 = decode_positions("WWEEBBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after3 = decode_positions("WEEBEBBBWWEEEEWEWEEEEEEE".to_string());
+        let board_after4 = decode_positions("WEEEEBBBWWEEEEEWWEEEEEEE".to_string());
+        let board_after5 = decode_positions("WEEWBBBBWWEEEEWEEEEEEEEE".to_string());
+
+        assert_eq!(get_action_from_board(board_before, board_after1, 0b11), Action::new(Some(0), 1, None));
+        assert_eq!(get_action_from_board(board_before, board_after2, 0b11), Action::new(None, 1, None));
+        assert_eq!(get_action_from_board(board_before, board_after3, 0b10), Action::new(Some(4), 3, None));
+        assert_eq!(get_action_from_board(board_before, board_after4, 0b11), Action::new(Some(14), 15, Some(4)));
+        assert_eq!(get_action_from_board(board_before, board_after5, 0b11), Action::new(Some(16), 3, None));
     }
 }

@@ -1,5 +1,5 @@
 use core::panic;
-use crate::logic::{action::Action, r#move::NEIGHBORS, position::{get_number_of_tokens, get_token_at}};
+use crate::logic::{r#move::NEIGHBORS, position::{get_number_of_tokens, get_token_at}};
 
 /*
     One Board u64 looks like:
@@ -112,31 +112,9 @@ pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, r
     return new_board
 }
 
-pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_type: u8) -> Action {
-    let mut start_position = None;
-    let mut end_position = 0;
-    let mut beatable_position = None;
-
-    (0..24).rev().for_each( |index| {
-        if board_before & 0b11 != board_after & 0b11 {
-            if board_before & 0b11 == 0b00 {
-                end_position = index as usize;
-            } else if (board_before & 0b11) as u8 == token_type {
-                start_position = Some(index as usize);
-            } else {
-                beatable_position = Some(index as usize);
-            }
-        }
-        board_before >>= 2;
-        board_after >>= 2;
-    });
-
-    return Action::new(start_position, end_position, beatable_position)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_action_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, update_possible_move_count}, logic::{action::Action, position::{decode_positions, set_token_at}}};
+    use crate::{agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board, get_possible_move_count, insert_number_of_possible_moves_to_board, insert_token_count_to_board, update_possible_move_count}, logic::position::{decode_positions, set_token_at}};
     use super::{BLACK_POSSIBLE_MOVES_FIRST_POSITION, WHITE_POSSIBLE_MOVES_FIRST_POSITION};
 
     #[test]
@@ -306,21 +284,5 @@ mod tests {
         let board = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
 
         assert_eq!(update_possible_move_count(board, 0b10, 8, false), board);
-    }
-
-    #[test]
-    fn test_get_action_from_board() {
-        let board_before = decode_positions("WEEEBBBBWWEEEEWEWEEEEEEE".to_string());
-        let board_after1 = decode_positions("EWEEBBBBWWEEEEWEWEEEEEEE".to_string());
-        let board_after2 = decode_positions("WWEEBBBBWWEEEEWEWEEEEEEE".to_string());
-        let board_after3 = decode_positions("WEEBEBBBWWEEEEWEWEEEEEEE".to_string());
-        let board_after4 = decode_positions("WEEEEBBBWWEEEEEWWEEEEEEE".to_string());
-        let board_after5 = decode_positions("WEEWBBBBWWEEEEWEEEEEEEEE".to_string());
-
-        assert_eq!(get_action_from_board(board_before, board_after1, 0b11), Action::new(Some(0), 1, None));
-        assert_eq!(get_action_from_board(board_before, board_after2, 0b11), Action::new(None, 1, None));
-        assert_eq!(get_action_from_board(board_before, board_after3, 0b10), Action::new(Some(4), 3, None));
-        assert_eq!(get_action_from_board(board_before, board_after4, 0b11), Action::new(Some(14), 15, Some(4)));
-        assert_eq!(get_action_from_board(board_before, board_after5, 0b11), Action::new(Some(16), 3, None));
     }
 }
