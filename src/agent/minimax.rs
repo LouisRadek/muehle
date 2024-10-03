@@ -1,8 +1,7 @@
 use std::time::{Duration, Instant};
 use itertools::Itertools;
-
-use crate::agent::action::forward_step_boards;
 use crate::agent::utils::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board};
+use crate::logic::forward_boards::forward_step_boards;
 use crate::logic::game_state::Phase;
 use crate::logic::position::negate_token;
 use super::AiPhase;

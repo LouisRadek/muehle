@@ -1,14 +1,10 @@
 use std::time::{Duration, Instant};
 use minimax::minimax;
-use action::forward_step_boards;
-use position::negate_token;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use utils::{get_action_from_board, insert_number_of_possible_moves_to_board, insert_token_count_to_board};
-use crate::logic::game_state::{Phase, Token};
+use crate::logic::{action::Action, forward_boards::forward_step_boards, game_state::{Phase, Token}, position::negate_token};
 
-pub mod action;
 pub mod minimax;
-pub mod position;
 pub mod utils;
 
 #[derive(Clone, Copy)]

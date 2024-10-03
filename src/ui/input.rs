@@ -29,7 +29,8 @@ impl InputHandler {
         let possible_actions = list_actions(
             &game_state.get_board(), 
             Token::parse_to_u8(game_state.get_player_turn()), 
-            game_state.get_phase()
+            game_state.get_phase(),
+            None
         ).collect::<Vec<Action>>();
         let can_take = possible_actions.iter().flat_map(|action| {
            if action.beatable_position.is_some() {

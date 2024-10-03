@@ -1,4 +1,4 @@
-use crate::{agent::action::Action, logic::{r#move::NEIGHBORS, position::{get_number_of_tokens, get_token_at}}};
+use crate::logic::{action::Action, r#move::NEIGHBORS, position::{get_number_of_tokens, get_token_at}};
 
 /*
     One Board u64 looks like:
