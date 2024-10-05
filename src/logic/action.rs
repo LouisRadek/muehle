@@ -64,7 +64,7 @@ fn list_moves_move_phase<'a>(board: &'a u64, token_type: u8, number_of_token: Op
                             start_position, 
                             end_position, 
                             end_token, 
-                            number_of_token.unwrap_or(get_number_of_tokens(*board, token_type))
+                            number_of_token.unwrap_or_else(|| get_number_of_tokens(*board, token_type))
                         ) {
                             Some(Move::new(Some(start_position), end_position))
                         } else {
