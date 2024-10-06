@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 use minimax::minimax;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, move_token_count::{insert_number_of_possible_moves_to_board, insert_token_count_to_board}, position::negate_token};
+use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, move_token_count::{insert_number_of_possible_moves_to_board, insert_token_count_to_board}, position::{encode_positions, negate_token}};
 
 pub mod minimax;
 
@@ -31,52 +31,38 @@ impl AiPhase {
 pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> Action {
     board = insert_token_count_to_board(board);
     board = insert_number_of_possible_moves_to_board(board);
+    println!("{:064b}", board);
+    println!("{}", encode_positions(board));
 
     let now = Instant::now();
     
     let mut depth = 0;
+    let player = Token::parse_to_u8(player);
+    
     let mut best_action_total = None;
-    let mut best_score_total = match player {
-        Token::White => isize::MIN,
-        Token::Black => isize::MAX,
-        Token::None => unreachable!()
-    };
+    let mut best_score_total = if player == 0b11 { isize::MIN } else { isize::MAX };
     let mut last_depth_time_elapsed = Duration::from_secs(0);
     let mut actions_with_scores: Vec<(u64, Option<isize>)> = Vec::with_capacity(500);
 
     'outer_loop: loop {
         depth += 1;
         let mut best_action = None;
-        let mut best_score = match player {
-            Token::White => isize::MIN,
-            Token::Black => isize::MAX,
-            Token::None => unreachable!()
-        };
+        let mut best_score = if player == 0b11 { isize::MIN } else { isize::MAX };
+        actions_with_scores = forward_step_boards(&board, player, ai_phase).par_bridge().map(|forward_board| {
+            (forward_board, minimax(forward_board, depth, isize::MIN, isize::MAX, negate_token(player), ai_phase.clone().increased(), now))
+        }).collect();
 
-        actions_with_scores = forward_step_boards(&board, Token::parse_to_u8(player), ai_phase)
-            .par_bridge()
-            .map(|forward_board| {
-                (forward_board, minimax(
-                    forward_board, 
-                    depth, 
-                    isize::MIN, 
-                    isize::MAX, 
-                    negate_token(Token::parse_to_u8(player)), 
-                    ai_phase.clone().increased(), 
-                    now
-                ))
-            }).collect();
-
-        for (forward_board, score) in actions_with_scores.into_iter() {
-            if score.is_none() {
+        for action_with_score in actions_with_scores.into_iter() {
+            if action_with_score.1.is_none() {
                 break 'outer_loop;
             }
 
-            best_action = Some(get_action_from_board(board, forward_board, Token::parse_to_u8(player)));
-            if player == Token::White && score.unwrap() >= best_score {
-                best_score = score.unwrap();
-            } else if player == Token::Black && score.unwrap() <= best_score {
-                best_score = score.unwrap();
+            if player == 0b11 && action_with_score.1.unwrap() >= best_score {
+                best_action = Some(get_action_from_board(board, action_with_score.0, player));
+                best_score = action_with_score.1.unwrap();
+            } else if player == 0b10 && action_with_score.1.unwrap() <= best_score {
+                best_action = Some(get_action_from_board(board, action_with_score.0, player));
+                best_score = action_with_score.1.unwrap();
             }
         }
 
@@ -84,6 +70,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
         best_score_total = best_score;
         last_depth_time_elapsed = now.elapsed();
     }
+
     
     let execution_information = format!("-> Execution time {:.3?} \n-> best score {} \n-> depth: {}\n-> step: {}\n", last_depth_time_elapsed, best_score_total, depth, ai_phase.step_counter);
     eprintln!("{}", execution_information);
