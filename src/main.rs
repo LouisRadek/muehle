@@ -15,10 +15,11 @@ fn main() {
             .resize_on_scale_factor_change(true))
         .window_setup(WindowSetup::default()
             .title("Muehle")
+            .icon("/muehle_board_icon.png")
             .vsync(true))
         .build()
         .expect("Could not create ggez context!");
-    
+
     let ui = MuehleUi::new(&mut ctx);
 
     event::run(ctx, event_loop, ui);
