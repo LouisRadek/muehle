@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use minimax::minimax;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, move_token_count::{insert_number_of_possible_moves_to_board, insert_token_count_to_board}, position::negate_token};
@@ -27,13 +27,14 @@ impl AiPhase {
     }
 }
 
-#[allow(unused_assignments)]
+#[allow(unused_assignments, unused_variables)]
 pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> Action {
     board = insert_token_count_to_board(board);
     board = insert_number_of_possible_moves_to_board(board);
 
     let now = Instant::now();
     
+    let player_parsed = Token::parse_to_u8(player);
     let mut depth = 0;
     let mut best_action_total = None;
     let mut best_score_total = match player {
@@ -41,7 +42,6 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
         Token::Black => isize::MAX,
         Token::None => unreachable!()
     };
-    let mut last_depth_time_elapsed = Duration::from_secs(0);
     let mut actions_with_scores: Vec<(u64, Option<isize>)> = Vec::with_capacity(500);
 
     'outer_loop: loop {
@@ -53,7 +53,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
             Token::None => unreachable!()
         };
 
-        actions_with_scores = forward_step_boards(&board, Token::parse_to_u8(player), ai_phase)
+        actions_with_scores = forward_step_boards(&board, player_parsed, ai_phase)
             .par_bridge()
             .map(|forward_board| {
                 (forward_board, minimax(
@@ -61,7 +61,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
                     depth, 
                     isize::MIN, 
                     isize::MAX, 
-                    negate_token(Token::parse_to_u8(player)), 
+                    negate_token(player_parsed), 
                     ai_phase.clone().increased(), 
                     now
                 ))
@@ -72,21 +72,18 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
                 break 'outer_loop;
             }
 
-            best_action = Some(get_action_from_board(board, forward_board, Token::parse_to_u8(player)));
             if player == Token::White && score.unwrap() >= best_score {
+                best_action = Some(get_action_from_board(board, forward_board, player_parsed));
                 best_score = score.unwrap();
             } else if player == Token::Black && score.unwrap() <= best_score {
+                best_action = Some(get_action_from_board(board, forward_board, player_parsed));
                 best_score = score.unwrap();
             }
         }
 
         best_action_total = best_action;
         best_score_total = best_score;
-        last_depth_time_elapsed = now.elapsed();
     }
-    
-    let execution_information = format!("-> Execution time {:.3?} \n-> best score {} \n-> depth: {}\n-> step: {}\n", last_depth_time_elapsed, best_score_total, depth, ai_phase.step_counter);
-    eprintln!("{}", execution_information);
 
     return best_action_total.unwrap();
 }
