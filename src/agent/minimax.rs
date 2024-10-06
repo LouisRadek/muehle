@@ -6,8 +6,8 @@ use crate::logic::game_state::Phase;
 use crate::logic::position::negate_token;
 use super::AiPhase;
 
-pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant) -> Option<isize> {
-    if time.elapsed() > Duration::from_millis(980) {
+pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant, max_time: u64) -> Option<isize> {
+    if time.elapsed() > Duration::from_secs(max_time) {
         return None;
     }
     
@@ -40,7 +40,16 @@ pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maxi
         let mut max_eval = isize::MIN + phase.step_counter as isize;
 
         for forward_board in forward_step_boards {
-            let eval = minimax(forward_board, depth - 1, alpha, beta, negate_token(maximizing_player), phase.increased(), time);
+            let eval = minimax(
+                forward_board, 
+                depth - 1, 
+                alpha, 
+                beta, 
+                negate_token(maximizing_player), 
+                phase.increased(), 
+                time,
+                max_time
+            );
             if eval.is_none() {
                 return None;
             }
@@ -55,7 +64,16 @@ pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maxi
     } else {
         let mut min_eval = isize::MAX - phase.step_counter as isize;
         for forward_board in forward_step_boards {
-            let eval = minimax(forward_board, depth - 1, alpha, beta, negate_token(maximizing_player), phase.increased(), time);
+            let eval = minimax(
+                forward_board, 
+                depth - 1, 
+                alpha, 
+                beta, 
+                negate_token(maximizing_player), 
+                phase.increased(), 
+                time,
+                max_time
+            );
             if eval.is_none() {
                 return None;
             }

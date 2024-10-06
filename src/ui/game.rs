@@ -1,7 +1,7 @@
 use std::{borrow::BorrowMut, ops::Deref};
 use ggez::{event::MouseButton, graphics::{self, Canvas, DrawParam, Image, Text}, Context};
 use crate::{agent::{calculate_next_move, AiPhase}, logic::{action::{list_actions, Action}, game_state::{Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}}};
-use super::{input::InputHandler, GameResources, MuehleUi, Winner};
+use super::{input::InputHandler, Difficulty, GameResources, MuehleUi, Winner};
 
 pub const SCREEN_POS: [(f32, f32); 24] = [
     // outer ring
@@ -99,7 +99,12 @@ impl MuehleUi {
         if self.ai.is_some() && player_turn == self.ai.unwrap() {
             let board = self.game_state.get_board();
             let ai_phase = AiPhase::new(self.game_state.get_phase(), self.game_state.get_step_counter());
-            let action = calculate_next_move(board, player_turn, ai_phase);
+            let max_time: u64 = match self.difficulty.as_ref().unwrap() {
+                Difficulty::Easy => 1,
+                Difficulty::Normal => 3,
+                Difficulty::Hard => 5
+            };
+            let action = calculate_next_move(board, player_turn, ai_phase, max_time);
             let possible_actions = list_actions(
                 &board, 
                 Token::parse_to_u8(player_turn), 

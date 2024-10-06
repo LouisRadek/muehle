@@ -28,7 +28,7 @@ impl AiPhase {
 }
 
 #[allow(unused_assignments, unused_variables)]
-pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> Action {
+pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max_time: u64) -> Action {
     board = insert_token_count_to_board(board);
     board = insert_number_of_possible_moves_to_board(board);
 
@@ -63,7 +63,8 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase) -> 
                     isize::MAX, 
                     negate_token(player_parsed), 
                     ai_phase.clone().increased(), 
-                    now
+                    now,
+                    max_time
                 ))
             }).collect();
 
