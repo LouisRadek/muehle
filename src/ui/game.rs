@@ -99,10 +99,10 @@ impl MuehleUi {
         if self.ai.is_some() && player_turn == self.ai.unwrap() {
             let board = self.game_state.get_board();
             let ai_phase = AiPhase::new(self.game_state.get_phase(), self.game_state.get_step_counter());
-            let max_time: u64 = match self.difficulty.as_ref().unwrap() {
+            let max_time  = match self.difficulty.as_ref().unwrap() {
                 Difficulty::Easy => 1,
                 Difficulty::Normal => 3,
-                Difficulty::Hard => 5
+                Difficulty::Hard => 15
             };
             let action = calculate_next_move(board, player_turn, ai_phase, max_time);
             let possible_actions = list_actions(

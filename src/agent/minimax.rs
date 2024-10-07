@@ -6,8 +6,8 @@ use crate::logic::game_state::Phase;
 use crate::logic::position::negate_token;
 use super::AiPhase;
 
-pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant, max_time: u64) -> Option<isize> {
-    if time.elapsed() > Duration::from_secs(max_time) {
+pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant) -> Option<isize> {
+    if time.elapsed() > Duration::from_secs(3) {
         return None;
     }
     
@@ -47,8 +47,7 @@ pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maxi
                 beta, 
                 negate_token(maximizing_player), 
                 phase.increased(), 
-                time,
-                max_time
+                time
             );
             if eval.is_none() {
                 return None;
@@ -71,8 +70,7 @@ pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maxi
                 beta, 
                 negate_token(maximizing_player), 
                 phase.increased(), 
-                time,
-                max_time
+                time
             );
             if eval.is_none() {
                 return None;
