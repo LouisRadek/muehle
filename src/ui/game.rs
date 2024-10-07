@@ -1,5 +1,5 @@
-use std::{borrow::BorrowMut, ops::Deref};
-use ggez::{event::MouseButton, graphics::{self, Canvas, DrawParam, Image, Text}, Context};
+use std::{borrow::BorrowMut, ops::Deref, time::Duration};
+use ggez::{event::MouseButton, graphics::{self, Canvas, DrawParam, Image, Text}, timer::sleep, Context};
 use crate::{agent::{calculate_next_move, AiPhase}, logic::{action::{list_actions, Action}, game_state::{Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}}};
 use super::{input::InputHandler, Difficulty, GameResources, MuehleUi, Winner};
 
@@ -111,6 +111,8 @@ impl MuehleUi {
                 self.game_state.get_phase(), 
                 None
             ).collect::<Vec<Action>>();
+
+            sleep(Duration::from_millis(750));
     
             if possible_actions.contains(&action) {
                 self.apply_action(action);
