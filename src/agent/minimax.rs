@@ -101,7 +101,7 @@ fn evaluate_action(positions: u64, phase: AiPhase) -> isize {
         }
     }
     
-    score += (white_token_count as isize - black_token_count as isize) * 1000;
+    score += (white_token_count as isize - black_token_count as isize) * 20;
     score += white_move_count as isize - black_move_count as isize;
     return score
 }
