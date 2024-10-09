@@ -127,9 +127,11 @@ impl InputHandler {
     }
 
     pub fn create_highlight_mesh(&self, ctx: &mut Context, canvas: &mut Canvas, resources: GameResources) {
-        if let Some(src) = self.selected_pos {
-            let outline_draw_params = get_token_draw_params(ctx, src, resources.clone());
-            canvas.draw(&resources.token_green_outline, outline_draw_params)
+        if self.state != InputHandlerState::Take {
+            if let Some(src) = self.selected_pos {
+                let outline_draw_params = get_token_draw_params(ctx, src, resources.clone());
+                canvas.draw(&resources.token_green_outline, outline_draw_params)
+            }
         }
         
         for position in 0..24 {
