@@ -1,4 +1,4 @@
-use std::{borrow::BorrowMut, ops::Deref, time::Duration};
+use std::{borrow::BorrowMut, time::Duration};
 use ggez::{event::MouseButton, graphics::{self, Canvas, DrawParam, Image, Text}, timer::sleep, Context};
 use crate::{agent::{calculate_next_move, AiPhase}, logic::{action::{list_actions, Action}, game_state::{Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}}};
 use super::{input::InputHandler, Difficulty, GameResources, MuehleUi, Winner};
@@ -67,6 +67,7 @@ pub fn get_scaling(ctx: &mut Context, image: Image) -> (f32, f32, f32) {
 
 impl MuehleUi {
     fn apply_action(&mut self, action: Action) {
+        self.last_action = Some(action.clone());
         let game_state = self.game_state.borrow_mut();
         let successor = apply_action(&game_state.get_board(), &action, Token::parse_to_u8(game_state.get_player_turn()));
         game_state.set_board(successor);
@@ -157,15 +158,15 @@ impl MuehleUi {
 
         let (heading, subheading) = if let Some(winner) = self.winner.as_ref() {
             match winner {
-                Winner::White(s) => { ("White won".to_string(), s.deref()) }
-                Winner::Black(s) => { ("Black won".to_string(), s.deref()) }
-                Winner::Draw(s) => { ("Draw".to_string(), s.deref()) }
+                Winner::White(s) => { ("White won".to_string(), s.to_string()) }
+                Winner::Black(s) => { ("Black won".to_string(), s.to_string()) }
+                Winner::Draw(s) => { ("Draw".to_string(), s.to_string()) }
             }
         } else {
             let subheading = if let Some(input) = self.input.as_ref() {
-                input.hint()
+                input.hint(self.ai, self.last_action.clone())
             } else {
-                "Waiting for engine..."
+                "Waiting for engine...".to_string()
             };
             (format!("{}'s turn", self.game_state.get_player_turn()), subheading)
         };
