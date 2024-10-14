@@ -154,48 +154,14 @@ impl InputHandler {
         }
     }
     
-    pub fn hint(&self, ai: Option<Token>, last_action: Option<Action>) -> String {
+    pub fn hint(&self) -> String {
         let tokens_left_to_place = 9 - (self.game_state.get_step_counter() / 2);
-        let mut ai_last_action: Option<String> = None;
-        if ai.is_some() 
-            && ai.unwrap() != self.game_state.get_player_turn() 
-            && last_action.is_some()
-        {
-            let last_action = last_action.unwrap();
-            if last_action.start_position.is_none() && last_action.beatable_position.is_none() {
-                ai_last_action = Some(format!("Ai placed stone at {}", last_action.end_position));
-            } else if last_action.start_position.is_none() && last_action.beatable_position.is_some() {
-                ai_last_action = Some(format!("Ai placed stone at {} and took stone at {}", 
-                    last_action.end_position, 
-                    last_action.beatable_position.unwrap())
-                );
-            } else if last_action.beatable_position.is_none() {
-                ai_last_action = Some(format!("Ai moved stone from {} to {}", 
-                    last_action.start_position.unwrap(), 
-                    last_action.end_position
-                ));
-            } else {
-                ai_last_action = Some(format!("Ai moved stone from {} to {} and took stone {}", 
-                    last_action.start_position.unwrap(), 
-                    last_action.end_position, 
-                    last_action.beatable_position.unwrap()
-                ))
-            }
-        }
         match self.state {
             InputHandlerState::PlaceDest => {
-                if ai_last_action.is_some() {
-                    return ai_last_action.unwrap();
-                } else {
-                    format!("Place a new piece. Remaining: {}", tokens_left_to_place)
-                }
+                format!("Place a new piece. Remaining: {}", tokens_left_to_place)
             }
             InputHandlerState::Source => {
-                if ai_last_action.is_some() {
-                    return ai_last_action.unwrap();
-                } else {
-                    "Move one of your pieces".to_string()
-                }
+                "Move one of your pieces".to_string()
             }
             InputHandlerState::Dest => {
                 "Select destination".to_string()

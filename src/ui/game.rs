@@ -87,7 +87,6 @@ pub fn get_scaling(quad_ctx: &mut GraphicsContext, image: Image) -> (f32, f32, f
 
 impl MuehleUi {
     fn apply_action(&mut self, action: Action) {
-        self.last_action = Some(action.clone());
         let game_state = self.game_state.borrow_mut();
         let successor = apply_action(&game_state.get_board(), &action, Token::parse_to_u8(game_state.get_player_turn()));
         game_state.set_board(successor);
@@ -188,7 +187,7 @@ impl MuehleUi {
             }
         } else {
             let subheading = if let Some(input) = self.input.as_ref() {
-                input.hint(self.ai, self.last_action.clone())
+                input.hint()
             } else {
                 "Waiting for engine...".to_string()
             };

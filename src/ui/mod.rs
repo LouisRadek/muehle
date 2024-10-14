@@ -6,10 +6,7 @@ use ggez::{
     Context, 
     GameResult
 };
-use crate::logic::{
-    action::Action, 
-    game_state::{GameState, Token}
-};
+use crate::logic::game_state::{GameState, Token};
 use crate::ui::input::InputHandler;
 
 pub mod input;
@@ -78,8 +75,7 @@ pub struct MuehleUi {
     ai: Option<Token>,
     mode: Option<Mode>,
     difficulty: Option<Difficulty>,
-    state: State,
-    last_action: Option<Action>
+    state: State
 }
 
 impl MuehleUi {
@@ -93,8 +89,7 @@ impl MuehleUi {
             ai: None,
             mode: None,
             difficulty: None,
-            state: State::Mode,
-            last_action: None
+            state: State::Mode
         }
     }
 }
