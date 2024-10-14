@@ -1,16 +1,58 @@
-## Introduction
+## Features at a glance
 
-This project originates from the module "Mühle Ki Programmierprojekt" which was offered by the [FMI](https://www.fmi.uni-stuttgart.de/de/) at the University of Stuttgart in 2024.  
-It implements the board game "Mühle" or in english "Nine Man Morris" with a simple game ui in pixel art. Furthermore, you can choose to play 1 vs. 1 or against an Ai in different difficulty levels.
+- **Play Nine Men's Morris:** Enjoy the classic board game againt an other human player or an AI opponent.
+- **Adjustable Difficulty:** Choose between easy, medium, and hard difficulty levels.
+- **AI Opponent:** The AI uses a Minimax algorithm with Alpha-Beta pruning for efficient decision-making.
+- **Cross-Platform:** The game can run locally on a desktop or as a WebAssembly application in the browser.
+
+
+## Origin
+
+This project originates from the module "Mühle Ki Programmierprojekt" which was offered by the [FMI](https://www.fmi.uni-stuttgart.de/de/) at the University of Stuttgart in 2024.
 
 **The pixel art was partially provied by [@purpurax](https://github.com/Purpurax) so big thanks for that.**
 
-## Build and Start the Game
 
-To build and start the game you need rust installed on your computer, like specified [here](https://www.rust-lang.org/learn/get-started). Furthermore, you have to download this project and open it and then start the game with:
+## Requirements
+
+- **Rust and Cargo:** Make sure you have Rust and Cargo installed through [rustup](https://www.rust-lang.org/learn/get-started).
+- **Web Server for WebAssembly:** If you want to compile and run this project in your browser you need a Webserver:
+    - Option 1: Install `basic-http-server` using Cargo:  
+        ```
+        cargo install basic-http-server
+        ```
+    - other Options are provided through python3, npm, ...
+
+
+## Build and Start the Game as an desktop application
+
+Download the project and open a terminal in the relativ path. Then run:
 ```
 cargo run --release
 ```
+
+
+## Build the game for the browser with WebAssembly
+
+1. **Add the WebAssembly Target:**
+    ```
+    rustup target add wasm32-unknown-unknown
+    ```
+2. **Build the Project:**
+    ```
+    cargo build --target wasm32-unknown-unknown --release
+    ```
+3. **Start the WebServer:**
+    ```
+    basic-http-server .
+    ```
+    or with the command of the webserver you installed
+
+
+Disclaimer: If you don't use the `--release` flag make sure to update the path in the index.html to the wasm file.
+
+
+
 
 ## Implementation
 
