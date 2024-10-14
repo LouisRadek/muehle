@@ -1,7 +1,27 @@
 use std::borrow::BorrowMut;
-use ggez::{event::MouseButton, graphics::{self, DrawParam, Font, Image, Text}, miniquad::GraphicsContext, timer, Context};
-use crate::{agent::{calculate_next_move, AiPhase}, logic::{action::{list_actions, Action}, game_state::{Phase, Token}, r#move::apply_action, position::{create_token_iter, get_number_of_tokens}}};
-use super::{input::InputHandler, Difficulty, GameResources, MuehleUi, Winner};
+use ggez::{
+    event::MouseButton, 
+    graphics::{self, DrawParam, Font, Image, Text}, 
+    miniquad::GraphicsContext, 
+    timer, 
+    Context
+};
+use crate::{
+    agent::{calculate_next_move, AiPhase}, 
+    logic::{
+        action::{list_actions, Action}, 
+        game_state::{Phase, Token}, 
+        r#move::apply_action, 
+        position::{create_token_iter, get_number_of_tokens}
+    }
+};
+use super::{
+    input::InputHandler, 
+    Difficulty, 
+    GameResources, 
+    MuehleUi, 
+    Winner
+};
 
 pub const SCREEN_POS: [(f32, f32); 24] = [
     // outer ring

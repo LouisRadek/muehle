@@ -1,8 +1,17 @@
-use ggez::{event::MouseButton, graphics::{self, DrawParam}, miniquad::GraphicsContext, Context};
-
+use ggez::{
+    event::MouseButton, 
+    graphics::{self, DrawParam}, 
+    miniquad::GraphicsContext, 
+    Context
+};
 use crate::logic::game_state::Token;
-
-use super::{game::get_scaling, Difficulty, Mode, MuehleUi, State};
+use super::{
+    game::get_scaling, 
+    Difficulty, 
+    Mode, 
+    MuehleUi, 
+    State
+};
 
 fn selected_position(x: f32, y: f32, state: State) -> Option<usize> {
     let screen_pos_mode_player = vec![

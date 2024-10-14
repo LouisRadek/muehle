@@ -1,6 +1,16 @@
 use crate::agent::AiPhase;
-use super::move_token_count::{extract_black_token_count_from_board, extract_white_token_count_from_board, update_possible_move_count, BLACK_TOKEN_FIRST_POSITION, WHITE_TOKEN_FIRST_POSITION};
-use super::{action::list_actions, game_state::Phase, position::{negate_token, set_token_at}};
+use super::move_token_count::{
+    extract_black_token_count_from_board, 
+    extract_white_token_count_from_board, 
+    update_possible_move_count, 
+    BLACK_TOKEN_FIRST_POSITION, 
+    WHITE_TOKEN_FIRST_POSITION
+};
+use super::{
+    action::list_actions, 
+    game_state::Phase, 
+    position::{negate_token, set_token_at}
+};
 
 pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + 'a {
     let number_of_token = if token_type == 0b11 {

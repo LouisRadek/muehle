@@ -1,12 +1,9 @@
-use ggez::Context;
-use ggez::graphics;
-use ggez::miniquad::GraphicsContext;
+use ggez::{Context, graphics, miniquad::GraphicsContext};
 use crate::logic::action::{list_actions, Action};
 use crate::logic::game_state::{GameState, Phase, Token};
 use crate::logic::position::get_token_at;
 use super::game::get_token_draw_params;
 use super::GameResources;
-
 
 pub struct InputHandler {
     game_state: GameState,

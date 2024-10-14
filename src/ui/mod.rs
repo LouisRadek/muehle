@@ -1,6 +1,15 @@
 use std::collections::HashMap;
-use ggez::{event::{EventHandler, MouseButton}, graphics::{self, Color, Image}, miniquad::GraphicsContext, Context, GameResult};
-use crate::logic::{action::Action, game_state::{GameState, Token}};
+use ggez::{
+    event::{EventHandler, MouseButton}, 
+    graphics::{self, Color, Image}, 
+    miniquad::GraphicsContext, 
+    Context, 
+    GameResult
+};
+use crate::logic::{
+    action::Action, 
+    game_state::{GameState, Token}
+};
 use crate::ui::input::InputHandler;
 
 pub mod input;

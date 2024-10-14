@@ -1,5 +1,10 @@
 use std::iter;
-use crate::logic::{game_state::Phase, mill_detection::is_mill_closing, r#move::{apply_move, is_beat_possible, is_move_valid}, position::{create_token_iter, get_number_of_tokens}};
+use crate::logic::{
+    game_state::Phase, 
+    mill_detection::is_mill_closing, 
+    r#move::{apply_move, is_beat_possible, is_move_valid}, 
+    position::{create_token_iter, get_number_of_tokens}
+};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Action {
