@@ -22,6 +22,7 @@ This project originates from the module "Mühle Ki Programmierprojekt" which was
         cargo install basic-http-server
         ```
     - other Options are provided through python3, npm, ...
+- **Docker:** If you want to build with docker get it from [here](https://docs.docker.com/get-started/get-docker/).
 
 
 ## Build and Start the Game as an desktop application
@@ -43,10 +44,16 @@ cargo run --release
     cargo build --target wasm32-unknown-unknown --release
     ```
 3. **Start the WebServer:**
+    - **Option 1:**
     ```
     basic-http-server .
     ```
-    or with the command of the webserver you installed
+    - **Option 2:** with the command of the webserver you installed.
+    - **Option 3:** change the port if you want otherwise open [localhost:8006](http://localhost:8006).
+    ```
+    docker compose up
+    ```
+
 
 
 Disclaimer: If you don't use the `--release` flag make sure to update the path in the index.html to the wasm file.
