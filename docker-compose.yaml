@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  muehle:
+    build: .
+    ports:
+      - "8006:80"
