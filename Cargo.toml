@@ -1,9 +1,12 @@
 [package]
 name = "muehle"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Enjoy the classic board game Nine Men's Morris againt an other human player or an AI opponent."
+license = "MIT"
+repository = "https://github.com/LouisRadek/muehle"
+documentation = "https://github.com/LouisRadek/muehle?tab=readme-ov-file#implementation"
+authors = ["Louis Radek <radek.louisbuiss@gmail.com>"]
 
 [dependencies]
 itertools = "0.13.0"

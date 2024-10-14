@@ -631,7 +631,7 @@ checksum = "e53debba6bda7a793e5f99b8dacf19e626084f525f7829104ba9898f367d85ff"
 
 [[package]]
 name = "muehle"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "fnv",
  "good-web-game",
