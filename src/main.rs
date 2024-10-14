@@ -1,4 +1,5 @@
-use ggez::{conf::{WindowMode, WindowSetup}, event, ContextBuilder};
+extern crate good_web_game as ggez;
+use ggez::conf::Conf;
 use ui::MuehleUi;
 
 mod agent;
@@ -6,21 +7,14 @@ mod logic;
 mod ui;
 
 fn main() {
-    let (mut ctx, event_loop) = ContextBuilder::new("muehle", "Louis Radek")
-        .add_resource_path("./resources")
-        .window_mode(WindowMode::default()
-            .dimensions(600.0, 600.0)
-            .min_dimensions(600.0, 600.0)
-            .resizable(true)
-            .resize_on_scale_factor_change(true))
-        .window_setup(WindowSetup::default()
-            .title("Muehle")
-            .icon("/muehle_board_icon.png")
-            .vsync(true))
-        .build()
-        .expect("Could not create ggez context!");
+    let config = Conf::default()
+        .cache(Some(include_bytes!("../resources.tar")))
+        .window_title("Muehle".to_string())
+        .window_width(600)
+        .window_height(600)
+        .window_resizable(true);
 
-    let ui = MuehleUi::new(&mut ctx);
-
-    event::run(ctx, event_loop, ui);
+    let _ = ggez::start(config, |mut ctx, quad_ctx| {
+        Box::new(MuehleUi::new(&mut ctx, quad_ctx))
+    });
 }

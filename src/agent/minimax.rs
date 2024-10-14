@@ -1,13 +1,17 @@
-use std::time::{Duration, Instant};
+use ggez::timer;
 use itertools::Itertools;
-use crate::logic::move_token_count::{extract_black_move_count_from_board, extract_black_token_count_from_board, extract_white_move_count_from_board, extract_white_token_count_from_board};
+use crate::logic::move_token_count::{
+    extract_black_move_count_from_board, 
+    extract_black_token_count_from_board, 
+    extract_white_move_count_from_board, extract_white_token_count_from_board
+};
 use crate::logic::forward_boards::forward_step_boards;
 use crate::logic::game_state::Phase;
 use crate::logic::position::negate_token;
 use super::AiPhase;
 
-pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: Instant) -> Option<isize> {
-    if time.elapsed() > Duration::from_secs(3) {
+pub fn minimax(board: u64, depth: usize, mut alpha: isize, mut beta: isize, maximizing_player: u8, phase: AiPhase, time: f64) -> Option<isize> {
+    if timer::time() - time > 3.0 {
         return None;
     }
     

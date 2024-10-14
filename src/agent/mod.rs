@@ -1,7 +1,13 @@
-use std::time::Instant;
+use ggez::timer;
 use minimax::minimax;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use crate::logic::{action::{get_action_from_board, Action}, forward_boards::forward_step_boards, game_state::{Phase, Token}, move_token_count::{insert_number_of_possible_moves_to_board, insert_token_count_to_board}, position::negate_token};
+use crate::logic::{
+    action::{get_action_from_board, Action}, 
+    forward_boards::forward_step_boards, 
+    game_state::{Phase, Token}, 
+    move_token_count::{insert_number_of_possible_moves_to_board, insert_token_count_to_board}, 
+    position::negate_token
+};
 
 pub mod minimax;
 
@@ -32,7 +38,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max
     board = insert_token_count_to_board(board);
     board = insert_number_of_possible_moves_to_board(board);
 
-    let now = Instant::now();
+    let now = timer::time();
     
     let player_parsed = Token::parse_to_u8(player);
     let mut depth = 0;

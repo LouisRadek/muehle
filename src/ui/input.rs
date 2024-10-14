@@ -1,5 +1,6 @@
 use ggez::Context;
-use ggez::graphics::Canvas;
+use ggez::graphics;
+use ggez::miniquad::GraphicsContext;
 use crate::logic::action::{list_actions, Action};
 use crate::logic::game_state::{GameState, Phase, Token};
 use crate::logic::position::get_token_at;
@@ -126,29 +127,29 @@ impl InputHandler {
         }
     }
 
-    pub fn create_highlight_mesh(&self, ctx: &mut Context, canvas: &mut Canvas, resources: GameResources) {
+    pub fn create_highlight_mesh(&self, ctx: &mut Context, quad_ctx: &mut GraphicsContext, resources: GameResources) {
         if self.state != InputHandlerState::Take {
             if let Some(src) = self.selected_pos {
-                let outline_draw_params = get_token_draw_params(ctx, src, resources.clone());
-                canvas.draw(&resources.token_green_outline, outline_draw_params)
+                let outline_draw_params = get_token_draw_params(quad_ctx, src, resources.clone());
+                let _ = graphics::draw(ctx, quad_ctx, &resources.token_green_outline, outline_draw_params);
             }
         }
         
         for position in 0..24 {
             if self.can_click(position) {
-                let outline_draw_params = get_token_draw_params(ctx, position, resources.clone());
+                let outline_draw_params = get_token_draw_params(quad_ctx, position, resources.clone());
                 match self.state {
                     InputHandlerState::PlaceDest => {
-                        canvas.draw(&resources.empty_token_outline, outline_draw_params) 
+                        let _ = graphics::draw(ctx, quad_ctx, &resources.empty_token_outline, outline_draw_params);
                     },
                     InputHandlerState::Source => {
-                        canvas.draw(&resources.token_green_outline, outline_draw_params)
+                        let _ = graphics::draw(ctx, quad_ctx, &resources.token_green_outline, outline_draw_params);
                     },
                     InputHandlerState::Dest => {
-                        canvas.draw(&resources.empty_token_outline, outline_draw_params)
+                        let _ = graphics::draw(ctx, quad_ctx, &resources.empty_token_outline, outline_draw_params);
                     },
                     InputHandlerState::Take => {
-                        canvas.draw(&resources.token_red_outline, outline_draw_params)
+                        let _ = graphics::draw(ctx, quad_ctx, &resources.token_red_outline, outline_draw_params);
                     },
                     InputHandlerState::Done => {}
                 }

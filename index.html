@@ -1,0 +1,27 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Mühle Ai | lradek</title>
+        <style>
+            html,
+            body,
+            canvas {
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                position: absolute;
+                background: black;
+                z-index: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="glcanvas" tabindex='1'></canvas>
+        
+        <script src="js/js_bundle.js"></script>
+        <script>load("target/wasm32-unknown-unknown/release/muehle.wasm");</script>
+    </body>
+</html>

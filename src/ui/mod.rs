@@ -1,5 +1,5 @@
-use std::{borrow::BorrowMut, collections::HashMap};
-use ggez::{event::{EventHandler, MouseButton}, graphics::{self, Color, Image}, Context, GameError, GameResult};
+use std::collections::HashMap;
+use ggez::{event::{EventHandler, MouseButton}, graphics::{self, Color, Image}, miniquad::GraphicsContext, Context, GameResult};
 use crate::logic::{action::Action, game_state::{GameState, Token}};
 use crate::ui::input::InputHandler;
 
@@ -45,17 +45,17 @@ pub struct GameResources {
 }
 
 impl GameResources {
-    pub fn new(ctx: &mut Context) -> GameResources {
+    pub fn new(ctx: &mut Context, quad_ctx: &mut GraphicsContext) -> GameResources {
         GameResources {
-            game_board: Image::from_path(ctx, "/muehle_board.png").unwrap(),
-            white_token: Image::from_path(ctx, "/white_token.png").unwrap(),
-            black_token: Image::from_path(ctx, "/black_token.png").unwrap(),
-            token_green_outline: Image::from_path(ctx, "/token_green_outline.png").unwrap(),
-            token_red_outline: Image::from_path(ctx, "/token_red_outline.png").unwrap(),
-            empty_token_outline: Image::from_path(ctx, "/empty_token_green_outline.png").unwrap(),
-            single_multi_player: Image::from_path(ctx, "/single_multiplayer.png").unwrap(),
-            black_white: Image::from_path(ctx, "/black_white.png").unwrap(),
-            easy_normal_hard: Image::from_path(ctx, "/easy_normal_hard.png").unwrap()
+            game_board: Image::new(ctx, quad_ctx, "/resources/muehle_board.png").unwrap(),
+            white_token: Image::new(ctx, quad_ctx, "/resources/white_token.png").unwrap(),
+            black_token: Image::new(ctx, quad_ctx, "/resources/black_token.png").unwrap(),
+            token_green_outline: Image::new(ctx, quad_ctx, "/resources/token_green_outline.png").unwrap(),
+            token_red_outline: Image::new(ctx, quad_ctx, "/resources/token_red_outline.png").unwrap(),
+            empty_token_outline: Image::new(ctx, quad_ctx, "/resources/empty_token_green_outline.png").unwrap(),
+            single_multi_player: Image::new(ctx, quad_ctx, "/resources/single_multiplayer.png").unwrap(),
+            black_white: Image::new(ctx, quad_ctx, "/resources/black_white.png").unwrap(),
+            easy_normal_hard: Image::new(ctx, quad_ctx, "/resources/easy_normal_hard.png").unwrap()
         }
     }
 }
@@ -74,9 +74,9 @@ pub struct MuehleUi {
 }
 
 impl MuehleUi {
-    pub fn new(ctx: &mut Context) -> MuehleUi {
+    pub fn new(ctx: &mut Context, quad_ctx: &mut GraphicsContext) -> MuehleUi {
         MuehleUi {
-            resources: GameResources::new(ctx),
+            resources: GameResources::new(ctx, quad_ctx),
             game_state: GameState::default(),
             input: None,
             winner: None,
@@ -91,7 +91,7 @@ impl MuehleUi {
 }
 
 impl EventHandler for MuehleUi {
-    fn update(&mut self, ctx: &mut Context) -> GameResult {
+    fn update(&mut self, _ctx: &mut Context, _quad_ctx: &mut GraphicsContext) -> GameResult {
         match self.state {
             State::Mode | State::Difficulty | State::Player => {},
             State::Game => {
@@ -99,44 +99,42 @@ impl EventHandler for MuehleUi {
                     return Ok(());
                 }
 
-                self.update_game(ctx);
+                self.update_game();
             }
         }
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::from_rgb(184, 111, 80));
-
+    fn draw(&mut self, ctx: &mut Context, quad_ctx: &mut GraphicsContext) -> GameResult {
+        graphics::set_canvas(ctx, None);
+        graphics::clear(ctx, quad_ctx, Color::from_rgb(184, 111, 80));
         match self.state {
             State::Mode | State::Difficulty | State::Player => {
-                self.draw_setup(ctx, canvas.borrow_mut());
+                self.draw_setup(ctx, quad_ctx);
             }
             State::Game => {
-                self.draw_game(ctx, canvas.borrow_mut());
+                self.draw_game(ctx, quad_ctx);
             }
         }
 
-        canvas.finish(ctx).unwrap();
         Ok(())
     }
 
     fn mouse_button_down_event(
         &mut self,
-        ctx: &mut Context,
+        _ctx: &mut Context,
+        quad_ctx: &mut GraphicsContext,
         button: MouseButton,
         x: f32,
         y: f32,
-    ) -> Result<(), GameError> {
+    ) {
         match self.state {
             State::Mode | State::Difficulty | State::Player => {
-                self.setup_handle_mouse_event(ctx, button, x, y);
+                self.setup_handle_mouse_event(quad_ctx, button, x, y);
             }
             State::Game => {
-                self.game_handle_mouse_event(ctx, button, x, y);
+                self.game_handle_mouse_event(quad_ctx, button, x, y);
             }
         }
-
-        Ok(())
     }
 }

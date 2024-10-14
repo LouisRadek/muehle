@@ -1,4 +1,4 @@
-use ggez::{event::MouseButton, graphics::{Canvas, DrawParam}, Context};
+use ggez::{event::MouseButton, graphics::{self, DrawParam}, miniquad::GraphicsContext, Context};
 
 use crate::logic::game_state::Token;
 
@@ -42,8 +42,8 @@ fn selected_position(x: f32, y: f32, state: State) -> Option<usize> {
 }
 
 impl MuehleUi {
-    pub fn draw_setup(&mut self, ctx: &mut Context, canvas: &mut Canvas) {
-        let (scale, x_offset, y_offset) = get_scaling(ctx, self.resources.single_multi_player.clone());
+    pub fn draw_setup(&mut self, ctx: &mut Context, quad_ctx: &mut GraphicsContext) {
+        let (scale, x_offset, y_offset) = get_scaling(quad_ctx, self.resources.single_multi_player.clone());
 
         let draw_params = DrawParam::default()
             .scale([scale, scale])
@@ -51,13 +51,13 @@ impl MuehleUi {
 
         match self.state {
             State::Mode => {
-                canvas.draw(&self.resources.single_multi_player, draw_params);
+                let _ = graphics::draw(ctx, quad_ctx, &self.resources.single_multi_player, draw_params);
             },
             State::Difficulty => {
-                canvas.draw(&self.resources.easy_normal_hard, draw_params);
+                let _ = graphics::draw(ctx, quad_ctx,&self.resources.easy_normal_hard, draw_params);
             },
             State::Player => {
-                canvas.draw(&self.resources.black_white, draw_params);
+                let _ = graphics::draw(ctx, quad_ctx,&self.resources.black_white, draw_params);
             }
             State::Game => {}
         }
@@ -65,12 +65,12 @@ impl MuehleUi {
 
     pub fn setup_handle_mouse_event(
         &mut self, 
-        ctx: &mut Context, 
+        quad_ctx: &mut GraphicsContext, 
         button: MouseButton,
         x: f32, 
         y: f32
     ) {
-        let (scale, x_offset, y_offset) = get_scaling(ctx, self.resources.game_board.clone());
+        let (scale, x_offset, y_offset) = get_scaling(quad_ctx, self.resources.game_board.clone());
 
         let adjusted_x = (x - x_offset) / scale;
         let adjusted_y = (y - y_offset) / scale;
