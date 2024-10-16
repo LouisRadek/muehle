@@ -35,24 +35,29 @@ cargo run --release
 
 ## Build the game for the browser with WebAssembly
 
-1. **Add the WebAssembly Target:**
-    ```
-    rustup target add wasm32-unknown-unknown
-    ```
-2. **Build the Project:**
-    ```
-    cargo build --target wasm32-unknown-unknown --release
-    ```
-3. **Start the WebServer:**
-    - **Option 1:**
-    ```
-    basic-http-server .
-    ```
-    - **Option 2:** with the command of the webserver you installed.
-    - **Option 3:** change the port if you want otherwise open [localhost:8006](http://localhost:8006).
+1. **Option:** Let Docker compile and build everything. You may want to
+change the port in the `docker-compose.yaml` otherwise open [localhost:8006](http://localhost:8006) after running:
     ```
     docker compose up
     ```
+
+2.   
+    1. **Add the WebAssembly Target:**
+        ```
+        rustup target add wasm32-unknown-unknown
+        ```
+    2. **Build the Project:**
+        ```
+        cargo build --target wasm32-unknown-unknown --release
+        ```
+    3. **Start the WebServer:**
+        - **Option 1:**
+        ```
+        basic-http-server .
+        ```
+        - **Option 2:** with the command of the webserver you installed.
+        - **Option 3:** change the port if you want otherwise open [localhost:8006](http://localhost:8006).
+    
 
 
 
