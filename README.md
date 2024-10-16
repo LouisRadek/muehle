@@ -1,16 +1,16 @@
+## Origin
+
+This project originates from the module "Mühle Ki Programmierprojekt" which was offered by the [FMI](https://www.fmi.uni-stuttgart.de/de/) at the University of Stuttgart in 2024.
+
+**The pixel art was partially provied by [@purpurax](https://github.com/Purpurax) so big thanks for that.**
+
+
 ## Features at a glance
 
 - **Play Nine Men's Morris:** Enjoy the classic board game againt an other human player or an AI opponent.
 - **Adjustable Difficulty:** Choose between easy, medium, and hard difficulty levels.
 - **AI Opponent:** The AI uses a Minimax algorithm with Alpha-Beta pruning for efficient decision-making.
 - **Cross-Platform:** The game can run locally on a desktop or as a WebAssembly application in the browser.
-
-
-## Origin
-
-This project originates from the module "Mühle Ki Programmierprojekt" which was offered by the [FMI](https://www.fmi.uni-stuttgart.de/de/) at the University of Stuttgart in 2024.
-
-**The pixel art was partially provied by [@purpurax](https://github.com/Purpurax) so big thanks for that.**
 
 
 ## Requirements
@@ -41,7 +41,7 @@ change the port in the `docker-compose.yaml` otherwise open [localhost:8006](htt
     docker compose up
     ```
 
-2.   
+2. **Option:** 
     1. **Add the WebAssembly Target:**
         ```
         rustup target add wasm32-unknown-unknown
