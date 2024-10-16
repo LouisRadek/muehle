@@ -132,8 +132,10 @@ impl MuehleUi {
                 None
             ).collect::<Vec<Action>>();
 
-            let now = timer::time();
-            while timer::time() - now < 0.750 {}
+            if self.difficulty.is_some() && *self.difficulty.as_ref().unwrap() != Difficulty::Hard {
+                let now = timer::time();
+                while timer::time() - now < 0.750 {}
+            }
     
             if possible_actions.contains(&action) {
                 self.apply_action(action);

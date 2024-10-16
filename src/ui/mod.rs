@@ -24,6 +24,7 @@ enum Mode {
     MultiPlayer,
 }
 
+#[derive(PartialEq)]
 enum Difficulty {
     Easy,
     Normal,
