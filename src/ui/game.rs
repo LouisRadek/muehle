@@ -120,7 +120,7 @@ impl MuehleUi {
             let board = self.game_state.get_board();
             let ai_phase = AiPhase::new(self.game_state.get_phase(), self.game_state.get_step_counter());
             let max_time  = match self.difficulty.as_ref().unwrap() {
-                Difficulty::Easy => 1,
+                Difficulty::Easy => 0,
                 Difficulty::Normal => 3,
                 Difficulty::Hard => 15
             };

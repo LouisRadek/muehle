@@ -51,8 +51,6 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max
     let mut actions_with_scores: Vec<(u64, Option<isize>)> = Vec::with_capacity(500);
 
     'outer_loop: loop {
-        depth += 1;
-
         if depth > max_depth {
             break 'outer_loop;
         }
@@ -77,7 +75,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max
                     now
                 ))
             }).collect();
-
+            
         for (forward_board, score) in actions_with_scores.into_iter() {
             if score.is_none() {
                 break 'outer_loop;
@@ -94,6 +92,7 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max
 
         best_action_total = best_action;
         best_score_total = best_score;
+        depth += 1;
     }
 
     return best_action_total.unwrap();
