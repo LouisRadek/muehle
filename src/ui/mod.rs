@@ -141,4 +141,14 @@ impl EventHandler for MuehleUi {
             }
         }
     }
+
+    fn resize_event(
+        &mut self,
+        ctx: &mut Context,
+        _quad_ctx: &mut GraphicsContext,
+        width: f32,
+        height: f32,
+    ) {
+        ctx.gfx_context.set_screen_coordinates(graphics::Rect::new(0.0, 0.0, width, height));
+    }
 }
