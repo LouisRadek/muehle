@@ -14,7 +14,7 @@ fn main() {
         .window_height(600)
         .window_resizable(true);
 
-    let _ = ggez::start(config, |mut ctx, quad_ctx| {
-        Box::new(MuehleUi::new(&mut ctx, quad_ctx))
+    let _ = ggez::start(config, |ctx, quad_ctx| {
+        Box::new(MuehleUi::new(ctx, quad_ctx))
     });
 }

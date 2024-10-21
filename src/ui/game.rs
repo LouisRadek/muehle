@@ -54,10 +54,10 @@ pub const SCREEN_POS: [(f32, f32); 24] = [
 ];
 
 fn selected_position(x: f32, y: f32) -> Option<usize> {
-    for p in 0..24 {
-        let (x1, y1) = SCREEN_POS[p];
+    for (index, position) in SCREEN_POS.iter().enumerate() {
+        let (x1, y1) = position;
         if (x - x1) * (x - x1) + (y - y1) * (y - y1) < 50.0 * 50.0 {
-            return Some(p);
+            return Some(index);
         }
     }
     None

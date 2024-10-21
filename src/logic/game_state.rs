@@ -105,9 +105,9 @@ impl GameState {
 
     pub fn get_phase(&self) -> Phase {
         if self.step_counter < 18 {
-            return Phase::Set
+            Phase::Set
         } else {
-            return Phase::Move
+            Phase::Move
         }
     }
 }

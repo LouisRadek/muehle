@@ -19,7 +19,7 @@ pub fn reverse_token_of_board(mut board: u64) -> u64 {
     let mut reversed_board: u64 = 0;
     for i in 0..24 {
         let token = negate_token((board & 0b11) as u8) as u64;
-        reversed_board |= token << i*2;
+        reversed_board |= token << (i*2);
         board >>= 2;
     }
     reversed_board
@@ -62,7 +62,7 @@ pub fn print_board(board: u64) {
 pub fn decode_positions(encoded_positions: String) -> u64 {
     let mut decoded_positions: u64 = 0b0;
 
-    for char in encoded_positions.trim().chars().into_iter() {
+    for char in encoded_positions.trim().chars() {
         match char {
             'B' => decoded_positions |= 0b10,
             'W' => decoded_positions |= 0b11,
@@ -72,8 +72,7 @@ pub fn decode_positions(encoded_positions: String) -> u64 {
         decoded_positions <<= 2;
     }
     decoded_positions >>= 2;
-
-    return decoded_positions
+    decoded_positions
 }
 
 #[allow(dead_code)]
@@ -86,7 +85,7 @@ pub fn encode_positions(board: u64) -> String {
             _ => encoded_positions.push('E')
         };
     }
-    return encoded_positions
+    encoded_positions
 }
 
 #[cfg(test)]

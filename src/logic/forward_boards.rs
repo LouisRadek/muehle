@@ -12,7 +12,7 @@ use super::{
     position::{negate_token, set_token_at}
 };
 
-pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + 'a {
+pub fn forward_step_boards(board: &u64, token_type: u8, phase: AiPhase) -> impl Iterator<Item=u64> + '_ {
     let number_of_token = if token_type == 0b11 {
         extract_white_token_count_from_board(*board) as u8
     } else {
@@ -20,7 +20,7 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -
     };
 
     list_actions(board, token_type, phase.phase, Some(number_of_token)).map(move |action| {
-        let mut new_board = board.clone();
+        let mut new_board = *board;
         
         if phase.phase == Phase::Set && phase.step_counter >= 4 {
             new_board += if token_type == 0b11 {
@@ -47,7 +47,7 @@ pub fn forward_step_boards<'a>(board: &'a u64, token_type: u8, phase: AiPhase) -
             new_board = update_possible_move_count(new_board, negate_token(token_type), action.beatable_position.unwrap(), true);
         }
 
-        return new_board;
+        new_board
     })
 }
 

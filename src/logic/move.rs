@@ -39,8 +39,7 @@ pub fn is_move_valid(start_position: usize, end_position: usize, end_token: u8, 
     if number_of_token_type == 3 || is_neighbor(start_position, end_position) {
         return true
     }
-
-    return false
+    false
 }
 
 fn is_neighbor(position1: usize, position2: usize) -> bool {
@@ -48,7 +47,7 @@ fn is_neighbor(position1: usize, position2: usize) -> bool {
 }
 
 pub fn apply_move(board: &u64, r#move: &Move, token_type: u8) -> u64 {
-    let mut new_board = board.clone();
+    let mut new_board = *board;
     if r#move.start_position.is_some() {
         new_board = set_token_at(*board, r#move.start_position.unwrap(), 0b00);
     }
@@ -56,7 +55,7 @@ pub fn apply_move(board: &u64, r#move: &Move, token_type: u8) -> u64 {
 }
 
 pub fn apply_action(board: &u64, action: &Action, token_type: u8) -> u64 {
-    let mut new_board = board.clone();
+    let mut new_board = *board;
     if action.start_position.is_some() {
         new_board = set_token_at(*board, action.start_position.unwrap(), 0b00);
     }
@@ -77,8 +76,7 @@ pub fn is_beat_possible(board: u64, position: usize, token_current_player: u8) -
     if !is_part_of_mill(board, position, token_of_opponent) {
         return true
     }
-    
-    return is_all_part_of_mill(board, token_of_opponent)
+    is_all_part_of_mill(board, token_of_opponent)
 }
 
 #[cfg(test)]

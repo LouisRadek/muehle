@@ -33,7 +33,7 @@ impl AiPhase {
     }
 }
 
-#[allow(unused_assignments, unused_variables)]
+#[allow(unused_assignments, unused_variables, clippy::if_same_then_else)]
 pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max_depth: usize) -> Action {
     board = insert_token_count_to_board(board);
     board = insert_number_of_possible_moves_to_board(board);
@@ -95,5 +95,5 @@ pub fn calculate_next_move(mut board: u64, player: Token, ai_phase: AiPhase, max
         depth += 1;
     }
 
-    return best_action_total.unwrap();
+    best_action_total.unwrap()
 }

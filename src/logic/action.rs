@@ -31,8 +31,8 @@ impl Move {
     }
 }
 
-pub fn list_actions<'a>(board: &'a u64, token_type: u8, phase: Phase, number_of_token: Option<u8>) -> impl Iterator<Item=Action> + 'a {
-    list_moves(&board, token_type, phase, number_of_token)
+pub fn list_actions(board: &u64, token_type: u8, phase: Phase, number_of_token: Option<u8>) -> impl Iterator<Item=Action> + '_ {
+    list_moves(board, token_type, phase, number_of_token)
         .flat_map(move |possible_move| {
             if is_mill_closing(*board, apply_move(board, &possible_move, token_type), token_type) {
                 return itertools::Either::Left(
@@ -50,7 +50,7 @@ pub fn list_actions<'a>(board: &'a u64, token_type: u8, phase: Phase, number_of_
     })
 }
 
-pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase, number_of_token: Option<u8>) -> impl Iterator<Item=Move> + 'a {
+pub fn list_moves(board: &u64, token_type: u8, phase: Phase, number_of_token: Option<u8>) -> impl Iterator<Item=Move> + '_ {
     if phase == Phase::Set {
         itertools::Either::Left(list_moves_set_phase(*board))
     } else {
@@ -58,7 +58,7 @@ pub fn list_moves<'a>(board: &'a u64, token_type: u8, phase: Phase, number_of_to
     }
 }
 
-fn list_moves_move_phase<'a>(board: &'a u64, token_type: u8, number_of_token: Option<u8>) -> impl Iterator<Item=Move> + 'a {
+fn list_moves_move_phase(board: &u64, token_type: u8, number_of_token: Option<u8>) -> impl Iterator<Item=Move> + '_ {
     create_token_iter(*board).enumerate()
         .filter(move |(_, token)| *token == token_type)
             .flat_map(move |(start_position, _)| {
@@ -110,7 +110,7 @@ pub fn get_action_from_board(mut board_before: u64, mut board_after: u64, token_
         board_after >>= 2;
     });
 
-    return Action::new(start_position, end_position, beatable_position)
+    Action::new(start_position, end_position, beatable_position)
 }
 
 #[cfg(test)]

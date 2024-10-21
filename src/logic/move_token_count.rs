@@ -80,11 +80,11 @@ pub fn get_possible_move_count(board: u64, token_type: u8) -> usize {
         index -= 1;
         board_mut >>= 2;
     }
-    return count
+    count
 }
 
 pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, remove: bool) -> u64 {
-    let mut new_board = board.clone();
+    let mut new_board = board;
 
     let token_at_position = get_token_at(new_board, position);
     if token_type == 0b00 || (token_at_position != 0b00 && remove) 
@@ -96,7 +96,7 @@ pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, r
     NEIGHBORS[position].iter()
         .for_each(|neighbor| {
             if *neighbor == 24 {
-                return ()
+                return
             }
 
             match get_token_at(new_board, *neighbor) {
@@ -112,7 +112,7 @@ pub fn update_possible_move_count(board: u64, token_type: u8, position: usize, r
             }
     });
 
-    return new_board
+    new_board
 }
 
 #[cfg(test)]
