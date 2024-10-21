@@ -56,14 +56,8 @@ change the port in the `docker-compose.yaml` otherwise open [localhost:8006](htt
         basic-http-server .
         ```
         - **Option 2:** with the command of the webserver you installed.
-        - **Option 3:** change the port if you want otherwise open [localhost:8006](http://localhost:8006).
-    
-
-
 
 Disclaimer: If you don't use the `--release` flag make sure to update the path in the index.html to the wasm file.
-
-
 
 
 ## Implementation
